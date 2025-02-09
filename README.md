@@ -12,4 +12,6 @@ Team names:
 - Robert Teal
 - Drashti Shah
 - Harsh Patel
+- Nicholas Gover
 - Vinay A. Nair
+
