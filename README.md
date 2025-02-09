@@ -12,3 +12,4 @@ Team names:
 - Robert Teal
 - Drashti Shah
 - Harsh Patel
+- Vinay A. Nair
