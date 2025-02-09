@@ -11,3 +11,4 @@ Team Name: StudyAssist
 Team names:
 - Robert Teal
 - Drashti Shah
+- Harsh Patel
