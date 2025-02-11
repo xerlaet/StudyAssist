@@ -15,3 +15,4 @@ Team names:
 - Nicholas Gover
 - Vinay A. Nair
 - Luke Nelson
+- Sanah Singh
