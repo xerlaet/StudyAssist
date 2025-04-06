@@ -1,0 +1,49 @@
+# @author: sanahsp (Sanah Singh)
+# @description: AccountManager class to create a new account and handle user validation
+
+import re
+
+# Ensures that a user can create an account in the system
+class AccountManager:
+    def __init__(self):
+        # The constructor initializes an empty dictionary to store user accounts 
+        self.accounts = {}
+
+    # This method validates the email format using a regular expression (regex)
+    def is_valid_email(self, email):
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.fullmatch(pattern, email) is not None
+
+    # This method is used to create a new account with input checks
+    def create_account(self, full_name, email, password, retype_password):
+        
+        # Check that full name matches criteria
+        if not isinstance(full_name, str) or not all(c.isalpha() or c.isspace() for c in full_name):
+            return "Error: Full name must contain only letters and spaces."
+        
+        # Check if the email is already taken (duplicate email)
+        if email in self.accounts:
+            return "Error: Email already exists."
+        
+        # Check if the email is in a valid format
+        if not self.is_valid_email(email):
+            return "Error: Invalid email format."
+        
+        # Check if the password is less than 15 characters
+        if len(password) >= 15:
+            return "Error: Password must be less than 15 characters."
+
+        # Store the user's full name and password in the accounts dictionary
+        self.accounts[email] = {'full_name': full_name, 'password': password}
+
+        return "Account created successfully!"
+
+# Create an instance of AccountManager 
+account_manager = AccountManager()
+
+# Test Cases to check validation 
+print(account_manager.create_account("Izzie Stevens", "izziestevens@example.com", "password123", "password123"))
+print(account_manager.create_account("Meredith Grey", "meredithgrey@example.com", "thisisaverylongpassword", "thisisaverylongpassword"))
+print(account_manager.create_account(123, "derekshepherd@example.com", "password456", "password456"))
+print(account_manager.create_account("April Kepner", "invalid-email", "password456", "password456"))
+print(account_manager.create_account("New User", "izziestevens@example.com", "password789", "password789"))
