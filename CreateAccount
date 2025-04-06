@@ -1,0 +1,65 @@
+import re
+
+# The AccountManager class ensures that users are able to create an account in the application
+class AccountManager:
+    def __init__(self):
+        # The constructor initializes an empty dictionary to store user accounts 
+        self.accounts = {}
+
+    # This method validates the email format using a regular expression (regex)
+    def is_valid_email(self, email):
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return re.fullmatch(pattern, email) is not None
+
+    # This method is used to create a new account 
+    def create_account(self, full_name, email, password, retype_password):
+
+        # Checks if the email already exists in the accounts dictionary 
+        if email in self.accounts:
+            print("Error: Email already exists.")
+            return 
+
+        # Store the user's full name and password in the accounts dictionary
+        self.accounts[email] = {'full_name': full_name, 'password': password}
+
+        return "Account created successfully!"
+
+# Create an instance of AccountManager 
+account_manager = AccountManager()
+
+# Get user input manually with checks 
+while True:
+    full_name = input("Enter full name: ")
+    if not all(c.isalpha() or c.isspace() for c in full_name.strip()):
+        print("Error: Full name must contain only letters.")
+    else:
+        break  
+
+while True:
+    email = input("Enter email: ")
+    # Validate if email is not empty and in the correct format
+    if not email.strip():
+        print("Error: Email required.")
+    elif not account_manager.is_valid_email(email):
+        print("Error: Invalid email format.")
+    else:
+        break  
+
+while True: 
+    password = input("Enter password: ")
+    if len(password) >= 15:
+        print("Error: Password must be less than 15 characters.")
+    else:
+        break 
+
+while True:
+    retype_password = input("Retype password: ")
+    if retype_password != password:
+        print("Error: Passwords do not match.")
+    else:
+        break  
+
+# Call the create_account method with the user input 
+result = account_manager.create_account(full_name, email, password, retype_password)
+
+print(result)
