@@ -5,7 +5,7 @@
 # It uses the openai api tools just in case we wish to switch to that
 from openai import OpenAI
 
-class EventGenerator:
+class StudyTimeGenerator:
     def __init__(self):
         # OpenAI client with parameters changed to point to LM Studio rather than OpenAI servers
         self.client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
@@ -33,6 +33,6 @@ class EventGenerator:
         return response.choices[0].message.content
 
 
-test = EventGenerator()
+test = StudyTimeGenerator()
 times = test.generateEvents()
 print(times)
