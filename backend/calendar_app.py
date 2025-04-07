@@ -1,3 +1,8 @@
+"""
+Robert Teal
+CS 3354
+April 6, 2025
+"""
 from datetime import datetime
 from icalendar import Calendar as ICalendar
 
@@ -139,7 +144,7 @@ if __name__ == "__main__":
         description="A fun brunch with friends at the new cafe.",
     )
 
-    # Import events from .ics files
+    # Add .ics events
     my_calendar.import_ics("test_valid.ics")
     my_calendar.import_ics("test_invalid.ics")
     my_calendar.import_ics("test_invalid2.ics")
