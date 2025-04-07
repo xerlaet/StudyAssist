@@ -29,7 +29,7 @@ class Calendar:
 
     def add_event(self, title: str, date: str, start_time: str, end_time: str, description: str = ""):
         """
-        Adds an event to the calendar.
+        Adds an event to the calendar with error handling for invalid inputs.
         
         Args:
             title (str): Title of the event.
@@ -38,11 +38,28 @@ class Calendar:
             end_time (str): End time of the event in HH:MM format.
             description (str): Optional description of the event.
         """
-        start_datetime = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
-        end_datetime = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
-        event = Event(title, start_datetime, end_datetime, description)
-        self.events.append(event)
-        print(f"Event '{title}' added successfully!")
+        try:
+            # Validate title
+            if not title.strip():
+                raise ValueError("Event title cannot be empty.")
+
+            # Validate and parse date and time
+            start_datetime = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
+            end_datetime = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+
+            # Ensure start time is before end time
+            if start_datetime >= end_datetime:
+                raise ValueError("Start time must be earlier than end time.")
+
+            # Create and add the event
+            event = Event(title, start_datetime, end_datetime, description)
+            self.events.append(event)
+            print(f"Event '{title}' added successfully!")
+
+        except ValueError as ve:
+            print(f"Error adding event: {ve}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
 
     def import_ics(self, file_path: str):
         """
@@ -87,12 +104,12 @@ class Calendar:
             print("-" * 30)
 
 
-# Example usage
+# Run this file to see the test cases in action
 if __name__ == "__main__":
     # Create a calendar instance
     my_calendar = Calendar()
 
-    # Add a manual event
+    # Add manual events
     my_calendar.add_event(
         title="Brunch with Friends",
         date="2025-04-06",
@@ -100,10 +117,33 @@ if __name__ == "__main__":
         end_time="11:00",
         description="A fun brunch with friends at the new cafe.",
     )
+    my_calendar.add_event(
+        title="Brunch with Friends",
+        date="2025-04-06",
+        start_time="Invalid",
+        end_time="Time",
+        description="A fun brunch with friends at the new cafe.",
+    )
+    my_calendar.add_event(
+        title="",
+        date="2025-04-06",
+        start_time="10:00",
+        end_time="11:00",
+        description="A fun brunch with friends at the new cafe.",
+    )
+    my_calendar.add_event(
+        title="",
+        date="2025-04-06",
+        start_time="Invalid",
+        end_time="Time",
+        description="A fun brunch with friends at the new cafe.",
+    )
 
-    # Import events from an .ics file
+    # Import events from .ics files
     my_calendar.import_ics("test_valid.ics")
     my_calendar.import_ics("test_invalid.ics")
+    my_calendar.import_ics("test_invalid2.ics")
+    my_calendar.import_ics("test_invalid3.ics")
 
     # List all events
     my_calendar.list_events()
