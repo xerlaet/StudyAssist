@@ -1,29 +1,63 @@
+import { BookText, Plus, Search } from 'lucide-react';
+
 export default function ChatSidebar() {
-    return (
-      <aside className="w-64 bg-gray-50 p-4 border-r">
-        <input type="text" placeholder="Search Conversation" className="w-full px-3 py-2 border rounded mb-4" />
-  
-        <div className="text-xs font-semibold mb-2">Recent Topics</div>
-        <ul className="text-sm mb-4">
+  return (
+    <aside className="w-full h-full border-r bg-white p-4 flex flex-col gap-4">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search Conversation"
+          className="w-full pl-10 pr-3 py-2 border rounded-md text-sm focus:outline-none"
+        />
+      </div>
+
+      {/* Tabs (Topics / History) */}
+      <div className="flex gap-2">
+        <button className="flex-1 px-3 py-1 rounded-md bg-gray-200 text-sm font-medium">
+          Topics
+        </button>
+        <button className="flex-1 px-3 py-1 rounded-md bg-gray-100 text-sm font-medium text-gray-600">
+          History
+        </button>
+      </div>
+
+      {/* Recent Topics */}
+      <div>
+        <h3 className="text-sm font-semibold mb-2">Recent Topics</h3>
+        <ul className="space-y-2 text-sm">
           {['Photosynthesis', 'Quadratic Equation', 'World War II', 'Cellular Biology'].map((topic) => (
-            <li key={topic} className="mb-1">{topic}</li>
+            <li key={topic} className="flex items-center gap-2 text-gray-800">
+              <BookText className="w-4 h-4 text-gray-500" />
+              {topic}
+            </li>
           ))}
         </ul>
-  
-        <div className="text-xs font-semibold mb-2">Suggested Questions</div>
-        <ul className="text-sm space-y-1">
+      </div>
+
+      {/* Suggested Questions */}
+      <div>
+        <h3 className="text-sm font-semibold mb-2 mt-4">Suggested Questions</h3>
+        <ul className="space-y-2 text-sm">
           {[
-            'How do I solve this?',
-            'How to fetch an API?',
-            'What is Figma?',
+            'How Do I solve this ?',
+            'How to Fetch an API?',
+            'What is Figma ?',
             'What is a Quadratic Equation?',
-          ].map((q) => (
-            <li key={q} className="text-blue-600 cursor-pointer hover:underline">+ {q}</li>
+            'What is conditional probability?',
+          ].map((question) => (
+            <li key={question} className="flex items-center gap-2 text-gray-700 cursor-pointer hover:underline">
+              <Plus className="w-4 h-4 text-gray-500" />
+              {question}
+            </li>
           ))}
         </ul>
-  
-        <div className="mt-6 text-sm text-blue-500 cursor-pointer underline">Student Help</div>
-      </aside>
-    );
-  }
-  
+      </div>
+
+      <div className="mt-auto text-sm text-blue-600 underline cursor-pointer pt-4">
+        Student Help
+      </div>
+    </aside>
+  );
+}
