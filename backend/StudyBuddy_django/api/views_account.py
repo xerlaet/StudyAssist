@@ -8,7 +8,7 @@ from .serializer import AccountSerializer
 
 # CREATE: Create a new Account
 @api_view(['POST'])
-def createAccount(request):
+def create_account(request):
     serializer = AccountSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -17,14 +17,14 @@ def createAccount(request):
 
 # READ: Get all Accounts
 @api_view(['GET'])
-def getAccounts(request):
+def get_accounts(request):
     accounts = Account.objects.all()
     serializer = AccountSerializer(accounts, many=True)
     return Response(serializer.data)
 
 # READ: Get a specific Account by email
 @api_view(['GET'])
-def getAccount(request, email):
+def get_account(request, email):
     try:
         account = Account.objects.get(email=email)
         serializer = AccountSerializer(account)
@@ -34,7 +34,7 @@ def getAccount(request, email):
 
 # UPDATE: Update an existing Account
 @api_view(['PUT'])
-def updateAccount(request, email):
+def update_account(request, email):
     try:
         account = Account.objects.get(email=email)
     except Account.DoesNotExist:
@@ -48,7 +48,7 @@ def updateAccount(request, email):
 
 # DELETE: Delete an Account by email
 @api_view(['DELETE'])
-def deleteAccount(request, email):
+def delete_account(request, email):
     try:
         account = Account.objects.get(email=email)
         account.delete()
