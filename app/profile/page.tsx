@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Overview from "@/components/profile/overview"
 import DetailedStats from "@/components/profile/detailedstats"
-import Achievements from "@/components/profile/Acheivements"
+import Achievements from "@/components/profile/Achievements"
 
 export default function ProfilePage() {
   return (
