@@ -2,7 +2,7 @@
 'use client';
 
 import { User2, LogOut } from 'lucide-react';
-import ChatSidebar from '@/components/chat/ChatSidebar';
+import ChatSidebar from '@/components/chat/ChatSideBar';
 import WelcomeBlock from '@/components/chat/WelcomeBlock';
 import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
