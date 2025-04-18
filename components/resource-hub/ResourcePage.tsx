@@ -251,29 +251,6 @@ export default function ResourcePage() {
                     <div className="flex items-center gap-2">
                       <button className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1 font-medium">
                         <Download className="h-3 w-3" /> Download
-                      </button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <Share className="h-4 w-4" /> Share
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <PenLine className="h-4 w-4" /> Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <FolderUp className="h-4 w-4" /> Move to
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
@@ -294,28 +271,6 @@ export default function ResourcePage() {
                       <button className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1 font-medium">
                         <Download className="h-3 w-3" /> Download
                       </button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <Share className="h-4 w-4" /> Share
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <PenLine className="h-4 w-4" /> Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <FolderUp className="h-4 w-4" /> Move to
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
@@ -336,28 +291,6 @@ export default function ResourcePage() {
                       <button className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1 font-medium">
                         <Download className="h-3 w-3" /> Download
                       </button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <Share className="h-4 w-4" /> Share
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <PenLine className="h-4 w-4" /> Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <FolderUp className="h-4 w-4" /> Move to
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
