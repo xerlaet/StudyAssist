@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Trash2 } from "lucide-react";
+import { CalendarDays, Trash2, PlusCircle } from "lucide-react";
 import { useState } from "react";
 
 type Reminder = {
@@ -18,6 +18,10 @@ export default function RemindersPage() {
     { id: 5, title: "AIM Meet", date: "2025-05-07" },
   ]);
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDate, setNewDate] = useState("");
+
   function formatDate(dateString: string) {
     const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -26,6 +30,19 @@ export default function RemindersPage() {
   function deleteReminder(id: number) {
     const updated = reminders.filter((reminder) => reminder.id !== id);
     setReminders(updated);
+  }
+
+  function addReminder() {
+    if (!newTitle || !newDate) return;
+    const newReminder = {
+      id: Date.now(),
+      title: newTitle,
+      date: newDate,
+    };
+    setReminders([...reminders, newReminder]);
+    setShowAddModal(false);
+    setNewTitle("");
+    setNewDate("");
   }
 
   return (
@@ -40,10 +57,10 @@ export default function RemindersPage() {
             Your Reminders
           </h2>
           <button
-            className="text-white bg-black px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm"
-            onClick={() => alert("You can add new reminder here (future feature).")}
+            onClick={() => setShowAddModal(true)}
+            className="text-white bg-black px-4 py-2 rounded-lg hover:bg-gray-800 transition text-sm flex items-center gap-2"
           >
-            + Add Reminder
+            <PlusCircle className="h-5 w-5" /> Add Reminder
           </button>
         </div>
 
@@ -77,6 +94,46 @@ export default function RemindersPage() {
           ))}
         </div>
       </div>
+
+      {/* Add Reminder Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 space-y-4">
+            <h3 className="text-xl font-semibold">Add New Reminder</h3>
+
+            <input
+              type="text"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="Reminder Title"
+              className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-primary"
+            />
+
+            <input
+              type="date"
+              value={newDate}
+              onChange={(e) => setNewDate(e.target.value)}
+              className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring focus:ring-primary"
+            />
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-4 py-2 rounded-md text-sm border border-gray-300 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addReminder}
+                className="px-4 py-2 rounded-md text-sm bg-black text-white hover:bg-gray-800"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
