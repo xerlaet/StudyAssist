@@ -13,13 +13,6 @@ import {
   Trash2,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 export default function ResourcePage() {
   return (
@@ -130,34 +123,28 @@ export default function ResourcePage() {
                         <p className="text-xs text-gray-500">Shared by Alex Chen</p>
                       </div>
                     </div>
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-      <MoreHorizontal className="h-4 w-4" />
-    </button>
-  </DropdownMenuTrigger>
-
-  <DropdownMenuContent
-    align="end"
-    className="bg-white border border-gray-200 rounded-md shadow-md p-1 w-48"
-  >
-    <DropdownMenuItem className="px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 flex items-center gap-2 cursor-pointer">
-      <Share className="h-4 w-4" /> Share
-    </DropdownMenuItem>
-    <DropdownMenuItem className="px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 flex items-center gap-2 cursor-pointer">
-      <PenLine className="h-4 w-4" /> Rename
-    </DropdownMenuItem>
-    <DropdownMenuItem className="px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 flex items-center gap-2 cursor-pointer">
-      <FolderUp className="h-4 w-4" /> Move to
-    </DropdownMenuItem>
-
-    <DropdownMenuSeparator className="my-1 border-t border-gray-200" />
-
-    <DropdownMenuItem className="px-3 py-2 hover:bg-red-50 focus:bg-red-50 text-red-600 flex items-center gap-2 cursor-pointer">
-      <Trash2 className="h-4 w-4" /> Delete
-    </DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem className="flex items-center gap-2">
+                          <Share className="h-4 w-4" /> Share
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2">
+                          <PenLine className="h-4 w-4" /> Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center gap-2">
+                          <FolderUp className="h-4 w-4" /> Move to
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
 
@@ -225,28 +212,6 @@ export default function ResourcePage() {
                       <button className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1 font-medium">
                         <Download className="h-3 w-3" /> Download
                       </button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <Share className="h-4 w-4" /> Share
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <PenLine className="h-4 w-4" /> Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <FolderUp className="h-4 w-4" /> Move to
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
@@ -267,28 +232,6 @@ export default function ResourcePage() {
                       <button className="text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1 font-medium">
                         <Download className="h-3 w-3" /> Download
                       </button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <Share className="h-4 w-4" /> Share
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <PenLine className="h-4 w-4" /> Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2">
-                            <FolderUp className="h-4 w-4" /> Move to
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                            <Trash2 className="h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </div>
                 </div>
