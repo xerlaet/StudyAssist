@@ -1,53 +1,14 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Calendar, FileText, Users, Bell, CheckCircle, Search, ArrowRight, ChevronDown } from "lucide-react"
+import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      {/* Navigation */}
-      <nav className="flex items-center justify-between px-12 py-4 border-b border-[#e5e2e2]">
-        <div className="flex items-center gap-2">
-          <Image
-            src="https://s3-alpha-sig.figma.com/img/ba1c/1331/9adcf160a889c79ae06b8dd8f362c903?Expires=1745193600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=ESkkii95SBXWtfpIQu9KLoTGPLsULeJFtl2k1oE4sVHg~P19SNchjaEv9TpicFTt0jKqONpCK9al9ufJFUYmA91v9ld0O84Oen2Q~l6XSb8wjnNQUqHUksfB6p5eMmO3Gpp-3kx7WHkJ6qSxbPhqPVpFGWKRCXKidQs3WNLwc5B~d-YuURRLmw3GfzZSr1-2a~W3P7w5S1WEtBsT41az-JA53hAwPJcR4uG2Ut~kH9ESDJSSiQzS5B3sCbMYmJCnJ118yCAFESD6dqPDIc28CGE4CLgUel5EM-9tglbxvs8yCMz-yBlT8Hujo0QHlF6eVyOZJgLF8e~Ouvznab8lmg__"
-            alt="App Logo"
-            width={70}
-            height={50}
-            className="h-10 w-10"
-          />
-          <span className="text-2xl font-bold">StudyBuddy</span>
-        </div>
-
-        <div className="text-xs flex items-center gap-12">
-          <Link href="#" className="font-medium">
-            Home
-          </Link>
-          <Link href="#" className="font-medium">
-            Features
-          </Link>
-          <Link href="#" className="font-medium">
-            FAQ
-          </Link>
-          <Link href="#" className="font-medium">
-            Contact Us
-          </Link>
-        </div>
-
-        <div className="text-xs flex items-center gap-4">
-          <button>
-            <Search className="h-5 w-5 text-[#7f7b7b]" />
-          </button>
-          <Link href="/login" className="px-6 py-2 border border-[#a5a4a4] rounded-full font-medium">
-          Login
-          </Link>
-          <Link href="/create-account" className="px-6 py-2 bg-[#e3c5c3] rounded-full font-medium">
-            Sign up
-          </Link>
-        </div>
-      </nav>
+    <>
 
       {/* Hero Section */}
-      <section className="flex items-center pt-20 px-12 py-12 relative">
+      <section className="flex items-center px-12 py-12 relative">
         <div className="w-[80%] bg-[#e3c5c3] bg-opacity-30 p-12 rounded-3xl">
           <h1 className="text-5xl font-bold leading-none mb-4">
             Your AI-powered
@@ -78,9 +39,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="flex justify-center items-center px-12 py-4 border-b border-[#e5e2e2]">
-        <ChevronDown className="h-6 w-6 text-[#a5a4a4] relative top-7" />
+      <div className="flex items-center w-full gap-1 my-4">
+        <div className="flex-grow">
+          <Separator/>
+        </div>
+        <ChevronDown className="h-6 w-6 text-[#a5a4a4]"/>
+        <div className="flex-grow">
+          <Separator/>
+        </div>
       </div>
 
       {/* Features Section */}
@@ -159,6 +125,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </>
   )
 }
