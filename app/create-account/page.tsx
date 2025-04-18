@@ -57,7 +57,7 @@ export default function CreateAccount() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-            <p className="text-[#7f7b7b]">Join StudyBuddy and start organizing your academic life with AI</p>
+            <p className="text-sm text-[#7f7b7b]">Join StudyBuddy and start organizing your academic life with AI</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
