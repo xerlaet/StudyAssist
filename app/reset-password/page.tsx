@@ -5,17 +5,16 @@ import type React from "react"
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff } from "lucide-react"
 
 export default function ResetPassword() {
-  const [activeTab, setActiveTab] = useState<"request" | "set">("request")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
-    email: "",
     password: "",
     confirmPassword: "",
   })
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -27,8 +26,10 @@ export default function ResetPassword() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // Here you would typically handle form submission, validation, and API calls
     console.log("Form submitted:", formData)
-    // Handle form submission based on active tab
+    setIsSuccess(true)
+    // Redirect to login page after successful password reset
   }
 
   return (
@@ -51,190 +52,103 @@ export default function ResetPassword() {
         </Link>
       </header>
 
-      {/* Reset Password Content */}
+      {/* Reset Password Form */}
       <div className="flex-1 flex justify-center items-center px-4 py-8">
-        <div className="w-full max-w-4xl">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-[#000000] mb-2">Reset your password</h1>
-            <p className="text-[#909090] text-lg">We&apos;ll help you get back into your account</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left Section */}
-            <div className="space-y-6">
-              <div className="flex mb-6">
-                <button
-                  className={`flex-1 py-3 text-center ${
-                    activeTab === "request"
-                      ? "bg-[#ffffff] text-[#000000] font-medium shadow-md"
-                      : "bg-[#f1f0f0] text-[#909090]"
-                  }`}
-                  onClick={() => setActiveTab("request")}
-                >
-                  Request Reset
-                </button>
-                <button
-                  className={`flex-1 py-3 text-center ${
-                    activeTab === "set"
-                      ? "bg-[#ffffff] text-[#000000] font-medium shadow-md"
-                      : "bg-[#f1f0f0] text-[#909090]"
-                  }`}
-                  onClick={() => setActiveTab("set")}
-                >
-                  Set New Password
-                </button>
+        <div className="w-full max-w-md">
+          {!isSuccess ? (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2">Reset Password</h1>
+                <p className="text-[#7f7b7b]">Create a new password for your account</p>
               </div>
 
-              {activeTab === "request" && (
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-[#000000] mb-1">
-                      Email
+                    <label htmlFor="password" className="block text-sm font-medium mb-1">
+                      New Password
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Mail className="w-5 h-5 text-[#909090]" />
-                      </div>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-3 py-3 border border-[#e5e2e2] rounded-md text-[#000000] placeholder-[#a7a6a6] focus:outline-none focus:ring-1 focus:ring-[#000000]"
-                        placeholder="Enter your email"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-[#000000] text-white rounded-md hover:bg-[#050505] transition-colors"
-                  >
-                    Reset Password
-                  </button>
-
-                  <div className="text-center text-[#909090]">
-                    Remember your Password?{" "}
-                    <Link href="/login" className="text-[#000000] font-medium">
-                      Log in
-                    </Link>
-                  </div>
-                </form>
-              )}
-            </div>
-
-            {/* Right Section */}
-            <div className="space-y-6">
-              <div className="flex mb-6">
-                <button
-                  className={`flex-1 py-3 text-center ${
-                    activeTab === "request"
-                      ? "bg-[#f1f0f0] text-[#909090]"
-                      : "bg-[#ffffff] text-[#000000] font-medium shadow-md"
-                  }`}
-                  onClick={() => setActiveTab("request")}
-                >
-                  Request Reset
-                </button>
-                <button
-                  className={`flex-1 py-3 text-center ${
-                    activeTab === "set"
-                      ? "bg-[#ffffff] text-[#000000] font-medium shadow-md"
-                      : "bg-[#f1f0f0] text-[#909090]"
-                  }`}
-                  onClick={() => setActiveTab("set")}
-                >
-                  Set New Password
-                </button>
-              </div>
-
-              {activeTab === "set" && (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-[#000000] mb-1">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Lock className="w-5 h-5 text-[#909090]" />
-                      </div>
                       <input
                         type={showPassword ? "text" : "password"}
                         id="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-10 py-3 border border-[#e5e2e2] rounded-md text-[#000000] placeholder-[#a7a6a6] focus:outline-none focus:ring-1 focus:ring-[#000000]"
-                        placeholder="Create a Password"
+                        className="w-full px-4 py-3 border border-[#e5e2e2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#23AFB6]"
+                        placeholder="Enter new password"
                         required
                         minLength={8}
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 flex items-center pr-3"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? (
-                          <EyeOff className="w-5 h-5 text-[#909090]" />
-                        ) : (
-                          <Eye className="w-5 h-5 text-[#909090]" />
-                        )}
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
-                    <p className="text-xs text-[#909090] mt-1">Password must be at least 8 characters long</p>
+                    <p className="text-xs text-[#7f7b7b] mt-1">Password must be at least 8 characters long</p>
                   </div>
 
                   <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#000000] mb-1">
-                      Confirm Password
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+                      Confirm New Password
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Lock className="w-5 h-5 text-[#909090]" />
-                      </div>
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         id="confirmPassword"
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-10 py-3 border border-[#e5e2e2] rounded-md text-[#000000] placeholder-[#a7a6a6] focus:outline-none focus:ring-1 focus:ring-[#000000]"
-                        placeholder="Confirm your Password"
+                        className="w-full px-4 py-3 border border-[#e5e2e2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#23AFB6]"
+                        placeholder="Confirm new password"
                         required
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 flex items-center pr-3"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
-                        {showConfirmPassword ? (
-                          <EyeOff className="w-5 h-5 text-[#909090]" />
-                        ) : (
-                          <Eye className="w-5 h-5 text-[#909090]" />
-                        )}
+                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                       </button>
                     </div>
                   </div>
+                </div>
 
+                <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full py-3 bg-[#000000] text-white rounded-md hover:bg-[#050505] transition-colors"
+                    className="w-full py-3 bg-[#e3c5c3] rounded-lg font-medium hover:bg-[#d9b5b3] transition-colors"
                   >
                     Reset Password
                   </button>
+                </div>
 
-                  <div className="text-center text-[#909090]">
-                    Remember your Password?{" "}
-                    <Link href="/login" className="text-[#000000] font-medium">
+                <div className="text-center text-sm">
+                  <p className="text-[#7f7b7b]">
+                    Remember your password?{" "}
+                    <Link href="/login" className="text-[#23AFB6] font-medium">
                       Log in
                     </Link>
-                  </div>
-                </form>
-              )}
+                  </p>
+                </div>
+              </form>
+            </>
+          ) : (
+            <div className="text-center">
+              <div className="bg-green-50 p-6 rounded-lg mb-6">
+                <h2 className="text-2xl font-bold text-green-700 mb-2">Password Reset Successfully!</h2>
+                <p className="text-green-600">
+                  Your password has been reset successfully. You can now log in with your new password.
+                </p>
+              </div>
+              <Link href="/login" className="text-[#23AFB6] font-medium">
+                Go to login
+              </Link>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </main>
