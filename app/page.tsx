@@ -32,9 +32,9 @@ export default function Home() {
           <Image
             src="https://s3-alpha-sig.figma.com/img/00dd/e3aa/a81168710b1de98ccda2f4a68f0de865?Expires=1745193600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=RKhqSAC7PMuI5X~BWlNjBJ1sdHUUq-OLcYvL9L0ue059FMu2mFYOdcXwtG5kecWFY3BoyDmxdf~zbykC5T4ZAcvpLRxAvTQxcNKUjsNja32x2XgfnKM3qQZD1Pet3A7WdwSQZSEKOu1wx~s9pCMI-ugOUXPhS4TcmUNqW6WzbLG7~lEss~4UUCm5-jkn9JTSQRcDmM6oR7Vf~mP4yGUA6r5xbFGuthotjZqN0xxVl11YNg0drHFTW1nOepVODoF0u2AupvCo7V5KvuaIy66LKPXt2ik-VkorDdVgZ3qEwTt4zpknIDIU1290J-Sc0x0xpu3MPQ1pjEjC8Pf9vZs54w__"
             alt="Student studying with laptop"
-            width={600}
-            height={700}
-            className="w-auto h-auto"
+            width={1000}
+            height={1000}
+            className="w-[700px] h-auto"
           />
         </div>
       </section>
