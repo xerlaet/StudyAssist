@@ -1,63 +1,78 @@
-import { BookText, Plus, Search } from 'lucide-react';
+"use client"
 
-export default function ChatSidebar() {
+import { useState } from "react"
+import { Search, Plus, Clock, Star, Trash, ChevronLeft } from "lucide-react"
+
+export default function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false)
+
+  const conversations = [
+    { id: "1", title: "Study plan for finals", date: "2 hours ago", starred: true },
+    { id: "2", title: "Math homework help", date: "Yesterday", starred: false },
+    { id: "3", title: "Research paper ideas", date: "3 days ago", starred: true },
+    { id: "4", title: "Physics concepts", date: "1 week ago", starred: false },
+  ]
+
   return (
-    <aside className="w-full h-full border-r bg-white p-4 flex flex-col gap-4">
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search Conversation"
-          className="w-full pl-10 pr-3 py-2 border rounded-md text-sm focus:outline-none"
-        />
-      </div>
+    <div
+      className={`bg-white border-r border-[#e5e2e2] transition-all duration-300 h-full ${
+        collapsed ? "w-0 overflow-hidden" : "w-72"
+      }`}
+    >
+      <div className="flex flex-col h-full">
+        <div className="p-4 border-b border-[#e5e2e2] flex justify-between items-center">
+          <h2 className="font-bold">Conversations</h2>
+          <button
+            onClick={() => setCollapsed(true)}
+            className="p-1 text-[#909090] hover:text-[#000000] transition-colors rounded-full hover:bg-[#f1f0f0]"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        </div>
 
-      {/* Tabs (Topics / History) */}
-      <div className="flex gap-2">
-        <button className="flex-1 px-3 py-1 rounded-md bg-gray-200 text-sm font-medium">
-          Topics
-        </button>
-        <button className="flex-1 px-3 py-1 rounded-md bg-gray-100 text-sm font-medium text-gray-600">
-          History
-        </button>
-      </div>
+        <div className="p-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#909090] h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              className="w-full pl-9 pr-4 py-2 border border-[#e5e2e2] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#23AFB6]"
+            />
+          </div>
+        </div>
 
-      {/* Recent Topics */}
-      <div>
-        <h3 className="text-sm font-semibold mb-2">Recent Topics</h3>
-        <ul className="space-y-2 text-sm">
-          {['Photosynthesis', 'Quadratic Equation', 'World War II', 'Cellular Biology'].map((topic) => (
-            <li key={topic} className="flex items-center gap-2 text-gray-800">
-              <BookText className="w-4 h-4 text-gray-500" />
-              {topic}
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div className="p-4">
+          <button className="w-full flex items-center gap-2 px-4 py-2 bg-[#e3c5c3] rounded-lg font-medium hover:bg-[#d9b5b3] transition-colors">
+            <Plus className="h-5 w-5" />
+            New Conversation
+          </button>
+        </div>
 
-      {/* Suggested Questions */}
-      <div>
-        <h3 className="text-sm font-semibold mb-2 mt-4">Suggested Questions</h3>
-        <ul className="space-y-2 text-sm">
-          {[
-            'How Do I solve this ?',
-            'How to Fetch an API?',
-            'What is Figma ?',
-            'What is a Quadratic Equation?',
-            'What is conditional probability?',
-          ].map((question) => (
-            <li key={question} className="flex items-center gap-2 text-gray-700 cursor-pointer hover:underline">
-              <Plus className="w-4 h-4 text-gray-500" />
-              {question}
-            </li>
-          ))}
-        </ul>
-      </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-4 py-2 text-xs font-medium text-[#909090] uppercase">Recent</div>
 
-      <div className="mt-auto text-sm text-blue-600 underline cursor-pointer pt-4">
-        Student Help
+          <div className="space-y-1 px-2">
+            {conversations.map((conversation) => (
+              <div key={conversation.id} className="flex items-center p-2 rounded-md hover:bg-[#f1f0f0] cursor-pointer">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center">
+                    <h3 className="text-sm font-medium truncate">{conversation.title}</h3>
+                    {conversation.starred && <Star className="h-3 w-3 text-amber-500 ml-1 flex-shrink-0" />}
+                  </div>
+                  <p className="text-xs text-[#909090] flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {conversation.date}
+                  </p>
+                </div>
+
+                <button className="p-1 text-[#909090] hover:text-red-500 transition-colors rounded-full hover:bg-[#f1f0f0]">
+                  <Trash className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </aside>
-  );
+    </div>
+  )
 }
