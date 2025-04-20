@@ -17,3 +17,6 @@ Team names:
 - Luke Nelson
 - Sanah Singh
 - Sai Abhinav Pydimarry
+
+Instructions on how to run the code:
+
