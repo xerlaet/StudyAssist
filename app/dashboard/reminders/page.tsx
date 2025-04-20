@@ -9,19 +9,39 @@ interface Reminder {
   id: number;
   title: string;
   date: string;
+  description?: string;
 }
 
 export default function RemindersPage() {
-  const [reminders, setReminders] = useState<Reminder[]>([
-    { id: 1, title: "Homework 4 Due", date: "April 22, 2025" },
-    { id: 2, title: "Project Proposal Submission", date: "April 25, 2025" },
-    { id: 3, title: "Study Session: OS Midterm", date: "April 27, 2025" },
-    { id: 4, title: "AI Group Meeting", date: "April 29, 2025" },
-  ]);
+  const [reminders, setReminders] = useState<Reminder[]>([{
+    id: 1,
+    title: "Homework 4 Due",
+    date: "April 22, 2025",
+    description: "No description",
+  },
+  {
+    id: 2,
+    title: "Project Proposal Submission",
+    date: "April 25, 2025",
+    description: "Add finishing touches",
+  },
+  {
+    id: 3,
+    title: "Study Session: OS Midterm",
+    date: "April 27, 2025",
+    description: "No description",
+  },
+  {
+    id: 4,
+    title: "AI Group Meeting",
+    date: "April 29, 2025",
+    description: "Discuss Project Phase 5 and implementing test cases",
+  }]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState("");
+  const [newDescription, setNewDescription] = useState("");
 
   function openModal() {
     setIsOpen(true);
@@ -31,15 +51,31 @@ export default function RemindersPage() {
     setIsOpen(false);
     setNewTitle("");
     setNewDate("");
+    setNewDescription("");
   }
 
   function addReminder() {
-    if (!newTitle || !newDate) {
-      alert("Please fill in both title and date.");
+    // Check title
+    if (!newTitle.trim()) {
+      alert("Error: Title Required");
       return;
     }
 
-    const formattedDate = new Date(newDate).toLocaleDateString("en-US", {
+    // Check for valid date format
+    const parsedDate = new Date(newDate);
+    if (isNaN(parsedDate.getTime())) {
+      alert("Error: Date should be in proper format");
+      return;
+    }
+
+    // Check if date is in the past
+    const now = new Date();
+    if (parsedDate < now) {
+      alert("Error: Cannot schedule reminder in the past");
+      return;
+    }
+
+    const formattedDate = parsedDate.toLocaleDateString("en-US", {
       month: "long",
       day: "numeric",
       year: "numeric",
@@ -49,7 +85,9 @@ export default function RemindersPage() {
       id: Date.now(),
       title: newTitle,
       date: formattedDate,
+      description: newDescription.trim() ? newDescription : "No description",
     };
+
     setReminders([...reminders, newReminder]);
     closeModal();
   }
@@ -86,6 +124,7 @@ export default function RemindersPage() {
               <div>
                 <h3 className="font-semibold">{reminder.title}</h3>
                 <p className="text-sm text-gray-500">{reminder.date}</p>
+                <p className="text-xs text-gray-400 italic">{reminder.description}</p>
               </div>
               <div className="flex gap-4">
                 <button className="text-primary text-sm hover:underline">
@@ -135,6 +174,13 @@ export default function RemindersPage() {
                   type="date"
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
+                  className="w-full border px-4 py-2 rounded-md text-sm"
+                />
+                <input
+                  type="text"
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Enter description (optional)"
                   className="w-full border px-4 py-2 rounded-md text-sm"
                 />
               </div>
