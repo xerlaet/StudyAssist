@@ -24,7 +24,8 @@ export function ClientLayout( {children}: {children: React.ReactNode;}) {
 
   // Add more path names here if top bar or side bar should be hidden
   const showTopBar = pageName !== "login" &&
-                     pageName !== "register" &&
+                     pageName !== "create-account" &&
+                     pageName !== "forgot-password" && 
                      pageName !== "reset-password";
   const showSideBar = showTopBar &&
                       pageName !== "quiz" &&
@@ -46,12 +47,16 @@ export function ClientLayout( {children}: {children: React.ReactNode;}) {
             <Title />
           </div>}
           <div className="flex w-full justify-end items-center pr-8 gap-2">
-            <Button variant="outline" className="cursor-pointer">
-              Login
-            </Button>
-            <Button variant="outline" className="cursor-pointer">
-              Sign Up
-            </Button>
+            <Link href= " /login" passHref>
+              <Button variant="outline" className="cursor-pointer">
+                Login
+              </Button>
+            </Link>
+            <Link href= "/create-account" passHref>
+              <Button variant="outline" className="cursor-pointer">
+                Sign Up
+              </Button>
+            </Link>
           </div>
         </div>
         <Separator />
@@ -117,7 +122,7 @@ export function ClientLayout( {children}: {children: React.ReactNode;}) {
             </div>
           </div>
         </div>}
-        <div className={`pt-8 px-8 pb-16 w-full flex-grow mx-auto ${pageName == "" ? "max-w-7xl" : "max-w-4xl"}`}>
+        <div className={`pt-8 px-8 pb-16 w-full flex-grow mx-auto ${pageName == "" ? "max-w-screen-2xl" : "max-w-screen-xl"}`}>
           {children}
         </div>
       </main>
