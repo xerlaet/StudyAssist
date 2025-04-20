@@ -17,20 +17,124 @@ export default function CreateAccount() {
     confirmPassword: "",
   })
 
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    general: "",
+  })  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
+  
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }))
+  
+    // Field-specific validation
+    switch (name) {
+      case "fullName":
+        if (!/^[A-Za-z\s]+$/.test(value)) {
+          setErrors((prev) => ({
+            ...prev,
+            fullName: "Full Name must contain only letters and spaces",
+          }))
+        } else {
+          setErrors((prev) => ({ ...prev, fullName: "" }))
+        }
+        break
+  
+      case "email":
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(value)) {
+          setErrors((prev) => ({
+            ...prev,
+            email: "Please enter a valid email address",
+          }))
+        } else {
+          setErrors((prev) => ({ ...prev, email: "" }))
+        }
+        break
+  
+      case "password":
+        if (value.length > 15) {
+          setErrors((prev) => ({
+            ...prev,
+            password: "Password must be less than 15 characters",
+          }))
+        } else if (value.length < 8) {
+          setErrors((prev) => ({
+            ...prev,
+            password: "Password must be at least 8 characters",
+          }))
+        } else {
+          setErrors((prev) => ({ ...prev, password: "" }))
+        }
+  
+        // Also check if confirmPassword matches (on every password change)
+        if (formData.confirmPassword && value !== formData.confirmPassword) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: "Passwords do not match",
+          }))
+        } else {
+          setErrors((prev) => ({ ...prev, confirmPassword: "" }))
+        }
+  
+        break
+  
+      case "confirmPassword":
+        if (value !== formData.password) {
+          setErrors((prev) => ({
+            ...prev,
+            confirmPassword: "Passwords do not match",
+          }))
+        } else {
+          setErrors((prev) => ({ ...prev, confirmPassword: "" }))
+        }
+        break
+  
+      default:
+        break
+    }
   }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Here you would typically handle form submission, validation, and API calls
-    console.log("Form submitted:", formData)
-    // Redirect to dashboard or home page after successful account creation
-  }
+    setErrors({ fullName: "", email: "", password: "", confirmPassword: "", general: "" })
+  
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+  
+      const data = await res.json()
+  
+      if (!res.ok) {
+        // Based on backend error message, update specific error field
+        if (data.message.includes("Full Name")) {
+          setErrors((prev) => ({ ...prev, fullName: data.message }))
+        } else if (data.message.includes("Email required") || data.message.includes("Email already exists")) {
+          setErrors((prev) => ({ ...prev, email: data.message }))
+        } else if (data.message.includes("Password must be less than")) {
+          setErrors((prev) => ({ ...prev, password: data.message }))
+        } else if (data.message.includes("Passwords do not match")) {
+          setErrors((prev) => ({ ...prev, confirmPassword: data.message }))
+        } else {
+          setErrors((prev) => ({ ...prev, general: data.message }))
+        }
+      } else {
+        alert("Account created") // You can also use a toast
+        // redirect or clear form
+      }
+    } catch (err) {
+      setErrors((prev) => ({ ...prev, general: "Something went wrong. Please try again." }))
+    }
+  }  
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -78,6 +182,8 @@ export default function CreateAccount() {
                 />
               </div>
 
+              {errors.fullName && <p className="text-sm text-red-600 mt-1">{errors.fullName}</p>}
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-1">
                   Email Address
@@ -93,6 +199,8 @@ export default function CreateAccount() {
                   required
                 />
               </div>
+
+              {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium mb-1">
@@ -118,8 +226,10 @@ export default function CreateAccount() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
-                <p className="text-xs text-[#7f7b7b] mt-1">Password must be at least 8 characters long</p>
               </div>
+
+              <p className="text-xs text-[#7f7b7b] mt-1">Password must be at least 8 characters long</p>
+              {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
 
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
@@ -146,6 +256,15 @@ export default function CreateAccount() {
                 </div>
               </div>
             </div>
+
+            {errors.confirmPassword && <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>}
+
+            {errors.general && (
+              <div className="text-center text-red-600 text-sm mb-4">
+              {errors.general}
+              </div>
+            )}
+
 
             <div className="pt-2">
               <button
