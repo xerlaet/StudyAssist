@@ -122,7 +122,7 @@ export function ClientLayout( {children}: {children: React.ReactNode;}) {
             </div>
           </div>
         </div>}
-        <div className={`pt-8 px-8 pb-16 w-full flex-grow mx-auto ${pageName == "" ? "max-w-7xl" : "max-w-4xl"}`}>
+        <div className={`pt-8 px-8 pb-16 w-full flex-grow mx-auto ${pageName == "" ? "max-w-screen-2xl" : "max-w-screen-xl"}`}>
           {children}
         </div>
       </main>
