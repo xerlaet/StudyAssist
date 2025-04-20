@@ -10,7 +10,8 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Trash, Edit, Check, XCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash, Edit, Check, XCircle, Upload } from "lucide-react";
+import ICAL from "ical.js";
 
 export default function CalendarPage() {
     const today = new Date();
@@ -71,6 +72,53 @@ export default function CalendarPage() {
         }
     };
 
+    const handleIcsFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const icsData = e.target?.result as string;
+            try {
+                const jcalData = ICAL.parse(icsData);
+                const comp = new ICAL.Component(jcalData);
+                const vevents = comp.getAllSubcomponents("vevent");
+
+                const importedEvents = vevents.map((vevent) => {
+                    const event = new ICAL.Event(vevent);
+
+                    // Validate required fields
+                    if (!event.summary || !event.startDate || !event.endDate) {
+                        throw new Error("Invalid event: Missing required fields (SUMMARY, DTSTART, DTEND).");
+                    }
+
+                    // Ensure start and end times are valid
+                    const startDate = event.startDate.toJSDate();
+                    const endDate = event.endDate.toJSDate();
+                    if (!(startDate instanceof Date) || !(endDate instanceof Date) || startDate >= endDate) {
+                        throw new Error("Invalid event: Invalid or inconsistent start and end times.");
+                    }
+
+                    return {
+                        title: event.summary || "Untitled Event",
+                        date: startDate.toISOString().split("T")[0],
+                        description: event.description || "",
+                        start_time: startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                        end_time: endDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                    };
+                });
+
+                setEvents((prevEvents) => [...prevEvents, ...importedEvents]);
+                alert("Events imported successfully!");
+            } catch (error) {
+                console.error("Error parsing .ics file:", error);
+                alert(`Failed to import events: ${error.message}`);
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
     const renderDays = () => {
         const days = [];
         for (let i = 0; i < firstDayOfMonth; i++) {
@@ -116,6 +164,24 @@ export default function CalendarPage() {
 
     return (
         <div className="relative">
+            {/* Import Calendar Button */}
+            <div className="mb-4 flex justify-end">
+                <label
+                    htmlFor="ics-file-input"
+                    className="inline-flex items-center px-4 py-2 bg-gray-200 text-sm font-medium rounded cursor-pointer hover:bg-gray-300"
+                >
+                    Import Calendar
+                    <Upload className="w-4 h-4 ml-2" />
+                </label>
+                <input
+                    id="ics-file-input"
+                    type="file"
+                    accept=".ics"
+                    onChange={handleIcsFileUpload}
+                    className="hidden" // Hide the actual file input
+                />
+            </div>
+
             {/* Navigation Buttons */}
             <div className="flex justify-between items-center mb-4">
                 <button
