@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views_account import (
     # Account
     get_accounts, get_account, create_account, update_account, delete_account
@@ -42,6 +43,11 @@ from .views_request import (
 from .views_block import (
     # Block
     get_blocks, get_block, create_block, update_block, delete_block
+)
+
+from .views_reminder import (
+    # Reminder
+    get_reminders, get_reminder, create_reminder, update_reminder, delete_reminder
 )
 
 urlpatterns = [
@@ -107,4 +113,15 @@ urlpatterns = [
     path('blocks/create/', create_block, name='create_block'),
     path('blocks/update/<int:block_id>/', update_block, name='update_block'),
     path('blocks/delete/<int:block_id>/', delete_block, name='delete_block'),
+
+    # Set up JWT
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Reminders
+    path('reminders/', get_reminders, name='get_reminders'),
+    path('reminders/<int:reminder_id>/', get_reminder, name='get_reminder'),
+    path('reminders/create/', create_reminder, name='create_reminder'),
+    path('reminders/update/<int:reminder_id>/', update_reminder, name='update_reminder'),
+    path('reminders/delete/<int:reminder_id>/', delete_reminder, name='delete_reminder'),
 ]

@@ -26,29 +26,35 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(
-        `http://localhost:8000/api/accounts/${formData.email}/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      // Send email and password to backend for token
+      const res = await fetch("http://localhost:8000/api/token/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+  
       if (!res.ok) {
-        throw new Error("User not found");
+        throw new Error("Invalid email or password");
       }
-
-      const data = await res.json();
-      if (data.password === formData.password) {
-        localStorage.setItem("currentUser", JSON.stringify(data));
-        window.location.href = "/dashboard";
-      } else {
-        alert("Login failed! Please check your email and password.");
-      }
+  
+      const data = await res.json(); // Contains { access, refresh }
+      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+  
+      // Optional: fetch user data for context
+      const userRes = await fetch(`http://localhost:8000/api/accounts/${formData.email}/`);
+      const user = await userRes.json();
+      localStorage.setItem("currentUser", JSON.stringify(user));
+  
+      // Redirect on success
+      window.location.href = "/dashboard";
     } catch (err) {
-      alert("Login failed! Unable to reach server or incorrect credentials.");
+      alert("Login failed! Please check your credentials.");
       console.error("Login error:", err);
     }
   };
