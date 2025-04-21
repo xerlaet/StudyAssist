@@ -57,18 +57,19 @@ Django will run at: `http://127.0.0.1:8000/` to ensure that it is working correc
 ```
 ### Commands to run for installing UI libraries (if any errors appear)
 
--npm install date-fns
--npm install lucide-react
--npm install @radix-ui/react-tabs
--npm install @radix-ui/react-switch
--npm install @radix-ui/react-tooltip
--npm install @radix-ui/react-select
--npm install @radix-ui/react-checkbox
--npm install @radix-ui/react-label
--npm install @radix-ui/react-radio-group
--npm install @radix-ui/react-separator
--npm install @radix-ui/react-progress
--npm install @radix-ui/react-slot
+npm install date-fns
+npm install lucide-react
+npm install @radix-ui/react-tabs
+npm install @radix-ui/react-switch
+npm install @radix-ui/react-tooltip
+npm install @radix-ui/react-select
+npm install @radix-ui/react-checkbox
+npm install @radix-ui/react-label
+npm install @radix-ui/react-radio-group
+npm install @radix-ui/react-separator
+npm install @radix-ui/react-progress
+npm install @radix-ui/react-slot
+
 
 After installing these packages successfully:
 
