@@ -1,9 +1,20 @@
 "use client"
 
-import { UserPlus, Users } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { UserPlus } from "lucide-react"
 
-const dummyFriends = ["John D", "John D.", "John Doe", "John Duo"]
+type Account = {
+  account_id: number
+  email: string
+  username: string
+}
+
+type Friend = {
+  friend_id: number
+  user_email: number
+  friend_email: number
+  chat_history: string
+}
 
 const dummyGroups = [
   {
@@ -30,12 +41,58 @@ const dummyGroups = [
 ]
 
 export default function FriendsPage() {
-  const [search, setSearch] = useState("John D")
+  const [search, setSearch] = useState("")
   const [activeTab, setActiveTab] = useState<"friends" | "groups">("friends")
+  const [allAccounts, setAllAccounts] = useState<Account[]>([])
+  const [friendConnections, setFriendConnections] = useState<Friend[]>([])
+  const [myFriends, setMyFriends] = useState<Account[]>([])
+
+  const currentUserId = 3 // replace with actual logged-in user ID
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [friendRes, accountRes] = await Promise.all([
+          fetch("http://localhost:8000/api/friends/"),
+          fetch("http://localhost:8000/api/accounts/")
+        ])
+
+        if (!friendRes.ok || !accountRes.ok) {
+          console.error("One of the responses failed:", friendRes.status, accountRes.status)
+          return
+        }
+
+        const friendsData: Friend[] = await friendRes.json()
+        const accountsData: Account[] = await accountRes.json()
+
+        setAllAccounts(accountsData)
+        setFriendConnections(friendsData)
+
+        const friendIds = friendsData
+          .filter(f => f.user_email === currentUserId)
+          .map(f => f.friend_email)
+
+        const matchedFriends = accountsData.filter(acc =>
+          friendIds.includes(acc.account_id)
+        )
+
+        setMyFriends(matchedFriends)
+      } catch (error) {
+        console.error("Error fetching friends or accounts:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const filteredFriends = search.trim() === ""
+    ? myFriends
+    : myFriends.filter(friend =>
+        friend.email.toLowerCase().includes(search.trim().toLowerCase())
+      )
 
   return (
     <div className="space-y-6">
-
       {/* Tabs */}
       <div className="flex space-x-6 border-b border-border text-sm font-medium">
         <button
@@ -59,37 +116,41 @@ export default function FriendsPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search for Friends"
+              placeholder="Search for Friends (by email)"
               className="w-full px-4 py-2 bg-muted text-black border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-sm"
             />
-            <button className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition text-sm">
-              Search
-            </button>
           </div>
 
           {/* Results */}
           <div className="bg-[#f9f1f1] p-6 rounded-lg">
             <p className="text-sm text-muted-foreground mb-3">
-              Search Results For <span className="font-semibold">{search}</span>
+              Showing results for <span className="font-semibold">{search || "all friends"}</span>
             </p>
-            <div className="space-y-2">
-              {dummyFriends.map((friend, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-white hover:bg-secondary/20 transition rounded-md shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-semibold flex items-center justify-center">
-                      {friend.split(" ").map(w => w[0]).join("")}
+            {filteredFriends.length > 0 ? (
+              <div className="space-y-2">
+                {filteredFriends.map((friend) => (
+                  <div
+                    key={friend.account_id}
+                    className="flex items-center justify-between p-3 bg-white hover:bg-secondary/20 transition rounded-md shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 text-primary font-semibold flex items-center justify-center">
+                        {friend.username.split(" ").map(w => w[0]).join("")}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{friend.username}</span>
+                        <span className="text-xs text-muted-foreground">{friend.email}</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium">{friend}</span>
+                    <button className="hover:text-primary transition" title="Add Friend">
+                      <UserPlus className="w-5 h-5" />
+                    </button>
                   </div>
-                  <button className="hover:text-primary transition" title="Add Friend">
-                    <UserPlus className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm italic text-muted-foreground">No results found.</p>
+            )}
           </div>
         </>
       ) : (
@@ -116,5 +177,3 @@ export default function FriendsPage() {
     </div>
   )
 }
-
-
