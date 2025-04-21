@@ -44,4 +44,14 @@ pip install -r requirements.txt
 cd StudyBuddy_django
 python manage.py runserver
 
-The backend should 
+The backend should
+
+
+How to Run Frontend (StudyAssist)
+git clone https://github.com/xerlaet/StudyAssist
+cd StudyAssist/frontend
+npm install
+npm run dev
+
+Then open your browser and go to:
+http://localhost:3000
