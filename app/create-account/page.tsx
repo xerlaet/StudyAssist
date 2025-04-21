@@ -140,8 +140,7 @@ export default function CreateAccount() {
           setErrors((prev) => ({ ...prev, general: data.message }));
         }
       } else {
-        alert("Account created"); // You can also use a toast
-        // redirect or clear form
+        window.location.href = "/dashboard";
       }
     } catch (err) {
       setErrors((prev) => ({

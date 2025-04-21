@@ -1,34 +1,46 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
-  })
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }))
-  }
+    }));
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically handle form submission, validation, and API calls
-    console.log("Login form submitted:", formData)
-    // Redirect to dashboard after successful login
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch(
+      `http://localhost:8000/api/accounts/${formData.email}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const data = await res.json();
+    if (data.password === formData.password) {
+      window.location.href = "/dashboard";
+    } else {
+      alert("Login failed! Please check your email and password.");
+    }
+  };
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -61,7 +73,10 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-1"
+                >
                   Email Address
                 </label>
                 <input
@@ -77,7 +92,10 @@ export default function Login() {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -96,7 +114,11 @@ export default function Login() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -111,12 +133,18 @@ export default function Login() {
                     onChange={handleChange}
                     className="h-4 w-4 text-[#23AFB6] focus:ring-[#23AFB6] border-[#e5e2e2] rounded"
                   />
-                  <label htmlFor="rememberMe" className="ml-2 block text-sm text-[#7f7b7b]">
+                  <label
+                    htmlFor="rememberMe"
+                    className="ml-2 block text-sm text-[#7f7b7b]"
+                  >
                     Remember me
                   </label>
                 </div>
                 <div className="text-sm">
-                  <Link href="/forgot-password" className="text-[#23AFB6] hover:underline">
+                  <Link
+                    href="/forgot-password"
+                    className="text-[#23AFB6] hover:underline"
+                  >
                     Forgot password?
                   </Link>
                 </div>
@@ -133,7 +161,10 @@ export default function Login() {
             <div className="text-center text-sm">
               <p className="text-[#7f7b7b]">
                 Don't have an account?{" "}
-                <Link href="/create-account" className="text-[#23AFB6] font-medium">
+                <Link
+                  href="/create-account"
+                  className="text-[#23AFB6] font-medium"
+                >
                   Sign up
                 </Link>
               </p>
@@ -142,5 +173,5 @@ export default function Login() {
         </div>
       </div>
     </main>
-  )
+  );
 }
