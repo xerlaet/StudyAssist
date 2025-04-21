@@ -26,7 +26,7 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch(
-      `http://localhost:8000/api/accounts/${formData.email}`,
+      `http://localhost:8000/api/accounts/${formData.email}/`,
       {
         method: "GET",
         headers: {
