@@ -10,6 +10,7 @@ from .models import (
     Request,
     Block,
 )
+from .models import Reminder
 
 @admin.register(Account)
 class AccountAdmin(admin.ModelAdmin):
@@ -58,3 +59,9 @@ class RequestAdmin(admin.ModelAdmin):
 class BlockAdmin(admin.ModelAdmin):
     list_display = ('block_id', 'user_email', 'blocked_email')
     search_fields = ('user_email__email', 'blocked_email__email')
+
+@admin.register(Reminder)
+class ReminderAdmin(admin.ModelAdmin):
+    list_display = ('reminder_id', 'email', 'event', 'reminder_time')
+    search_fields = ('email__email', 'event__title')
+    ordering = ('reminder_time',)

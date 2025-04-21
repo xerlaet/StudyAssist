@@ -45,6 +45,11 @@ from .views_block import (
     get_blocks, get_block, create_block, update_block, delete_block
 )
 
+from .views_reminder import (
+    # Reminder
+    get_reminders, get_reminder, create_reminder, update_reminder, delete_reminder
+)
+
 urlpatterns = [
     # Account
     path('accounts/', get_accounts, name='get_accounts'),
@@ -109,7 +114,14 @@ urlpatterns = [
     path('blocks/update/<int:block_id>/', update_block, name='update_block'),
     path('blocks/delete/<int:block_id>/', delete_block, name='delete_block'),
 
-    #Set up JWT
+    # Set up JWT
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # Reminders
+    path('reminders/', get_reminders, name='get_reminders'),
+    path('reminders/<int:reminder_id>/', get_reminder, name='get_reminder'),
+    path('reminders/create/', create_reminder, name='create_reminder'),
+    path('reminders/update/<int:reminder_id>/', update_reminder, name='update_reminder'),
+    path('reminders/delete/<int:reminder_id>/', delete_reminder, name='delete_reminder'),
 ]

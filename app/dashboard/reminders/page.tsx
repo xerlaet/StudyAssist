@@ -1,47 +1,47 @@
 "use client";
 
 import { CalendarIcon, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
 
 interface Reminder {
-  id: number;
-  title: string;
-  date: string;
-  description?: string;
+  reminder_id: number;
+  event: string;
+  reminder_time: string;
+  message: string;
+  email: number;
 }
 
 export default function RemindersPage() {
-  const [reminders, setReminders] = useState<Reminder[]>([{
-    id: 1,
-    title: "Homework 4 Due",
-    date: "April 22, 2025",
-    description: "No description",
-  },
-  {
-    id: 2,
-    title: "Project Proposal Submission",
-    date: "April 25, 2025",
-    description: "Add finishing touches",
-  },
-  {
-    id: 3,
-    title: "Study Session: OS Midterm",
-    date: "April 27, 2025",
-    description: "No description",
-  },
-  {
-    id: 4,
-    title: "AI Group Meeting",
-    date: "April 29, 2025",
-    description: "Discuss Project Phase 5 and implementing test cases",
-  }]);
-
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newDescription, setNewDescription] = useState("");
+
+  const accessToken = typeof window !== "undefined"
+    ? localStorage.getItem("accessToken")
+    : null;
+
+  const currentUser = typeof window !== "undefined"
+    ? JSON.parse(localStorage.getItem("currentUser") || "{}")
+    : {};
+  const ACCOUNT_ID = currentUser.account_id;
+
+  useEffect(() => {
+    if (!ACCOUNT_ID) return;
+
+    fetch("http://localhost:8000/api/reminders/", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) =>
+        setReminders(data.filter((r: Reminder) => r.email === ACCOUNT_ID))
+      )
+      .catch((err) => console.error("Failed to fetch reminders:", err));
+  }, [ACCOUNT_ID]);
 
   function openModal() {
     setIsOpen(true);
@@ -54,46 +54,63 @@ export default function RemindersPage() {
     setNewDescription("");
   }
 
-  function addReminder() {
-    // Check title
+  async function addReminder() {
     if (!newTitle.trim()) {
       alert("Error: Title Required");
       return;
     }
 
-    // Check for valid date format
     const parsedDate = new Date(newDate);
     if (isNaN(parsedDate.getTime())) {
       alert("Error: Date should be in proper format");
       return;
     }
 
-    // Check if date is in the past
     const now = new Date();
     if (parsedDate < now) {
       alert("Error: Cannot schedule reminder in the past");
       return;
     }
 
-    const formattedDate = parsedDate.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
+    try {
+      const res = await fetch("http://localhost:8000/api/reminders/create/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          email: ACCOUNT_ID,
+          event: newTitle,
+          reminder_time: newDate,
+          message: newDescription || "You have an upcoming event!",
+        }),
+      });
 
-    const newReminder = {
-      id: Date.now(),
-      title: newTitle,
-      date: formattedDate,
-      description: newDescription.trim() ? newDescription : "No description",
-    };
+      if (!res.ok) throw new Error("Failed to create reminder");
 
-    setReminders([...reminders, newReminder]);
-    closeModal();
+      const created = await res.json();
+      setReminders([...reminders, created]);
+      closeModal();
+    } catch (err) {
+      console.error("Failed to add reminder:", err);
+      alert("Could not save reminder.");
+    }
   }
 
-  function deleteReminder(id: number) {
-    setReminders(reminders.filter((r) => r.id !== id));
+  async function deleteReminder(id: number) {
+    try {
+      await fetch(`http://localhost:8000/api/reminders/delete/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      setReminders(reminders.filter((r) => r.reminder_id !== id));
+    } catch (err) {
+      console.error("Failed to delete reminder:", err);
+    }
   }
 
   return (
@@ -118,20 +135,19 @@ export default function RemindersPage() {
         <div className="space-y-4">
           {reminders.map((reminder) => (
             <div
-              key={reminder.id}
+              key={reminder.reminder_id}
               className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition"
             >
               <div>
-                <h3 className="font-semibold">{reminder.title}</h3>
-                <p className="text-sm text-gray-500">{reminder.date}</p>
-                <p className="text-xs text-gray-400 italic">{reminder.description}</p>
+                <h3 className="font-semibold">{reminder.event}</h3>
+                <p className="text-sm text-gray-500">
+                  {new Date(reminder.reminder_time).toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-400 italic">{reminder.message}</p>
               </div>
               <div className="flex gap-4">
-                <button className="text-primary text-sm hover:underline">
-                  View Details
-                </button>
                 <button
-                  onClick={() => deleteReminder(reminder.id)}
+                  onClick={() => deleteReminder(reminder.reminder_id)}
                   className="text-red-500 hover:text-red-700"
                   title="Delete"
                 >
@@ -171,7 +187,7 @@ export default function RemindersPage() {
                   className="w-full border px-4 py-2 rounded-md text-sm"
                 />
                 <input
-                  type="date"
+                  type="datetime-local"
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
                   className="w-full border px-4 py-2 rounded-md text-sm"
