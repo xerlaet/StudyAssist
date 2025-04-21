@@ -97,3 +97,13 @@ class Block(models.Model):
 
     def __str__(self):
         return f"Block between {self.user_email} and {self.blocked_email}"
+    
+class Reminder(models.Model):
+    reminder_id = models.AutoField(primary_key=True)
+    email = models.ForeignKey(Account, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    reminder_time = models.DateTimeField(help_text="When to remind the user")
+    message = models.TextField(default="You have an upcoming event!")
+
+    def __str__(self):
+        return f"Reminder for {self.event.title} to {self.email} at {self.reminder_time}"
