@@ -1,140 +1,155 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 export default function CreateAccount() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
-  })
+  });
 
   const [errors, setErrors] = useState({
-    fullName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
     general: "",
-  })  
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-  
+    const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  
+    }));
+
     // Field-specific validation
     switch (name) {
-      case "fullName":
+      case "username":
         if (!/^[A-Za-z\s]+$/.test(value)) {
           setErrors((prev) => ({
             ...prev,
-            fullName: "Full Name must contain only letters and spaces",
-          }))
+            username: "Username must contain only letters and spaces",
+          }));
         } else {
-          setErrors((prev) => ({ ...prev, fullName: "" }))
+          setErrors((prev) => ({ ...prev, username: "" }));
         }
-        break
-  
+        break;
+
       case "email":
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
           setErrors((prev) => ({
             ...prev,
             email: "Please enter a valid email address",
-          }))
+          }));
         } else {
-          setErrors((prev) => ({ ...prev, email: "" }))
+          setErrors((prev) => ({ ...prev, email: "" }));
         }
-        break
-  
+        break;
+
       case "password":
         if (value.length > 15) {
           setErrors((prev) => ({
             ...prev,
             password: "Password must be less than 15 characters",
-          }))
+          }));
         } else if (value.length < 8) {
           setErrors((prev) => ({
             ...prev,
             password: "Password must be at least 8 characters",
-          }))
+          }));
         } else {
-          setErrors((prev) => ({ ...prev, password: "" }))
+          setErrors((prev) => ({ ...prev, password: "" }));
         }
-  
+
         // Also check if confirmPassword matches (on every password change)
         if (formData.confirmPassword && value !== formData.confirmPassword) {
           setErrors((prev) => ({
             ...prev,
             confirmPassword: "Passwords do not match",
-          }))
+          }));
         } else {
-          setErrors((prev) => ({ ...prev, confirmPassword: "" }))
+          setErrors((prev) => ({ ...prev, confirmPassword: "" }));
         }
-  
-        break
-  
+
+        break;
+
       case "confirmPassword":
         if (value !== formData.password) {
           setErrors((prev) => ({
             ...prev,
             confirmPassword: "Passwords do not match",
-          }))
+          }));
         } else {
-          setErrors((prev) => ({ ...prev, confirmPassword: "" }))
+          setErrors((prev) => ({ ...prev, confirmPassword: "" }));
         }
-        break
-  
+        break;
+
       default:
-        break
+        break;
     }
-  }
-  
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrors({ fullName: "", email: "", password: "", confirmPassword: "", general: "" })
-  
+    e.preventDefault();
+    setErrors({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      general: "",
+    });
+
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
-  
-      const data = await res.json()
-  
+      const res = await fetch(
+        "http://localhost:8000/api/account_manage/create/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await res.json();
+
       if (!res.ok) {
         // Based on backend error message, update specific error field
-        if (data.message.includes("Full Name")) {
-          setErrors((prev) => ({ ...prev, fullName: data.message }))
-        } else if (data.message.includes("Email required") || data.message.includes("Email already exists")) {
-          setErrors((prev) => ({ ...prev, email: data.message }))
+        if (data.message.includes("Username")) {
+          setErrors((prev) => ({ ...prev, username: data.message }));
+        } else if (
+          data.message.includes("Email required") ||
+          data.message.includes("Email already exists")
+        ) {
+          setErrors((prev) => ({ ...prev, email: data.message }));
         } else if (data.message.includes("Password must be less than")) {
-          setErrors((prev) => ({ ...prev, password: data.message }))
+          setErrors((prev) => ({ ...prev, password: data.message }));
         } else if (data.message.includes("Passwords do not match")) {
-          setErrors((prev) => ({ ...prev, confirmPassword: data.message }))
+          setErrors((prev) => ({ ...prev, confirmPassword: data.message }));
         } else {
-          setErrors((prev) => ({ ...prev, general: data.message }))
+          setErrors((prev) => ({ ...prev, general: data.message }));
         }
       } else {
-        alert("Account created") // You can also use a toast
+        alert("Account created"); // You can also use a toast
         // redirect or clear form
       }
     } catch (err) {
-      setErrors((prev) => ({ ...prev, general: "Something went wrong. Please try again." }))
+      setErrors((prev) => ({
+        ...prev,
+        general: "Something went wrong. Please try again.",
+      }));
     }
-  }  
+  };
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -161,31 +176,41 @@ export default function CreateAccount() {
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-            <p className="text-sm text-[#7f7b7b]">Join StudyBuddy and start organizing your academic life with AI</p>
+            <p className="text-sm text-[#7f7b7b]">
+              Join StudyBuddy and start organizing your academic life with AI
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium mb-1">
-                  Full Name
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium mb-1"
+                >
+                  Username
                 </label>
                 <input
                   type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
+                  id="username"
+                  name="username"
+                  value={formData.username}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-[#e5e2e2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#23AFB6]"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your Username"
                   required
                 />
               </div>
 
-              {errors.fullName && <p className="text-sm text-red-600 mt-1">{errors.fullName}</p>}
+              {errors.username && (
+                <p className="text-sm text-red-600 mt-1">{errors.username}</p>
+              )}
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-1"
+                >
                   Email Address
                 </label>
                 <input
@@ -200,10 +225,15 @@ export default function CreateAccount() {
                 />
               </div>
 
-              {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+              )}
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -223,16 +253,27 @@ export default function CreateAccount() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
 
-              <p className="text-xs text-[#7f7b7b] mt-1">Password must be at least 8 characters long</p>
-              {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
+              <p className="text-xs text-[#7f7b7b] mt-1">
+                Password must be at least 8 characters long
+              </p>
+              {errors.password && (
+                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+              )}
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium mb-1"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -251,20 +292,27 @@ export default function CreateAccount() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
             </div>
 
-            {errors.confirmPassword && <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
 
             {errors.general && (
               <div className="text-center text-red-600 text-sm mb-4">
-              {errors.general}
+                {errors.general}
               </div>
             )}
-
 
             <div className="pt-2">
               <button
@@ -287,5 +335,5 @@ export default function CreateAccount() {
         </div>
       </div>
     </main>
-  )
+  );
 }
