@@ -40,19 +40,19 @@ Then, you will open two terminals: frontend and backend
 ## Backend 
 
 ```
-cd backend 
-pip install -r requirements.txt
-cd StudyBuddy_django
-python manage.py runserver 
+- cd backend 
+- pip install -r requirements.txt
+- cd StudyBuddy_django
+- python manage.py runserver 
 ```
 
 Django will run at: `http://127.0.0.1:8000/` to ensure that it is working correctly
 
 ## Frontend
 ```Commands to run
-cd StudyAssist
-npm install
-npm run dev
+- cd StudyAssist
+- npm install
+- npm run dev
 ```
 React app will run at: `http://localhost:3000/` to ensure that it is working correctly
 
