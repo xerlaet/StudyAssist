@@ -6,6 +6,7 @@ import HeaderTitle from '@/components/header-title';
 import OverviewCards from './OverviewCards';
 import ChartsSection from './ChartsSection';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function DashboardMain() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -33,6 +34,9 @@ export default function DashboardMain() {
             {tab.label}
           </Button>
         ))}
+        <Button variant='outline'>
+          <Link href="/quiz">Quiz</Link>
+        </Button>
       </div>
 
       <Separator className="my-2" />
