@@ -1,8 +1,8 @@
 from django.db import models
 
 class Account(models.Model):
-    account_id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True)
+    account_id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
 
@@ -14,13 +14,18 @@ class Account(models.Model):
 
 
 class UserData(models.Model):
+    def default_calendar():
+        return {'default': 'default'}
+
+    # email doesn't take an email, it takes an account object.
     email = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
     days = models.IntegerField(default=0)
     streak = models.IntegerField(default=0)
-    calendar = models.JSONField()
+    calendar = models.JSONField(default=default_calendar)
 
     def __str__(self):
         return f"UserData for {self.email}"
+
 
 
 class Note(models.Model):
