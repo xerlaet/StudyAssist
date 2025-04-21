@@ -10,7 +10,7 @@ const dummyGroups = [
     title: "CS 1234 Project",
     date: "Wednesday, March 19",
     time: "2:30PM",
-    location: "JO 2.222",
+    location: "JO 2.222", 
     friends: "John Doe, Jane Doe, and 1 other",
   },
   {
