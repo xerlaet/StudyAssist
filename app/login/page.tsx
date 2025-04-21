@@ -25,20 +25,31 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch(
-      `http://localhost:8000/api/accounts/${formData.email}/`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/accounts/${formData.email}/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("User not found");
       }
-    );
-    const data = await res.json();
-    if (data.password === formData.password) {
-      window.location.href = "/dashboard";
-    } else {
-      alert("Login failed! Please check your email and password.");
+
+      const data = await res.json();
+      if (data.password === formData.password) {
+        localStorage.setItem("currentUser", JSON.stringify(data));
+        window.location.href = "/dashboard";
+      } else {
+        alert("Login failed! Please check your email and password.");
+      }
+    } catch (err) {
+      alert("Login failed! Unable to reach server or incorrect credentials.");
+      console.error("Login error:", err);
     }
   };
 
@@ -160,7 +171,7 @@ export default function Login() {
 
             <div className="text-center text-sm">
               <p className="text-[#7f7b7b]">
-                Don't have an account?{" "}
+                Don't have an account? {" "}
                 <Link
                   href="/create-account"
                   className="text-[#23AFB6] font-medium"
