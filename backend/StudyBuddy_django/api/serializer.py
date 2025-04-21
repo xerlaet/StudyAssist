@@ -8,7 +8,8 @@ from .models import (
     Setting,
     Friend,
     Request,
-    Block
+    Block,
+    Reminder
 )
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -62,4 +63,10 @@ class RequestSerializer(serializers.ModelSerializer):
 class BlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Block
+        fields = '__all__'
+
+
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
         fields = '__all__'
