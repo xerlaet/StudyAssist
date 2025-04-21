@@ -55,21 +55,14 @@ Django will run at: `http://127.0.0.1:8000/` to ensure that it is working correc
 - npm install
 - npm run dev
 ```
-### Commands to run for installing UI libraries, if any errors appear
-``` 
-- npm install date-fns
-- npm install lucide-react
--npm install \
-@radix-ui/react-tabs \
-@radix-ui/react-switch \
-@radix-ui/react-tooltip \
-@radix-ui/react-select \
-@radix-ui/react-checkbox \
-@radix-ui/react-label \
-@radix-ui/react-radio-group \
-@radix-ui/react-separator \
-@radix-ui/react-progress \
-@radix-ui/react-slot
-```
-React app will run at: `http://localhost:3000/` to ensure that it is working correctly
+### Commands to run for installing UI libraries (if any errors appear)
+bash
+Copy
+Edit
+npm install date-fns
+npm install lucide-react
+npm install @radix-ui/react-tabs @radix-ui/react-switch @radix-ui/react-tooltip @radix-ui/react-select @radix-ui/react-checkbox @radix-ui/react-label @radix-ui/react-radio-group @radix-ui/react-separator @radix-ui/react-progress @radix-ui/react-slot
+After installing these packages successfully:
 
+React app will run at:
+http://localhost:3000/
