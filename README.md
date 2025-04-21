@@ -48,10 +48,34 @@ The backend should
 
 
 How to Run Frontend (StudyAssist)
-git clone https://github.com/xerlaet/StudyAssist
-cd StudyAssist/frontend
-npm install
-npm run dev
+Clone the repository:
 
-Then open your browser and go to:
+bash
+Copy
+Edit
+git clone https://github.com/xerlaet/StudyAssist
+Navigate to the frontend folder:
+
+bash
+Copy
+Edit
+cd StudyAssist/frontend
+Install the dependencies:
+
+bash
+Copy
+Edit
+npm install
+Run the development server:
+
+bash
+Copy
+Edit
+npm run dev
+Open your browser and go to:
+
+arduino
+Copy
+Edit
 http://localhost:3000
+
