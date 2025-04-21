@@ -48,16 +48,16 @@ urlpatterns = [
     # Account
     path('accounts/', get_accounts, name='get_accounts'),
     path('accounts/<str:email>/', get_account, name='get_account'),
-    path('accounts/create/', create_account, name='create_account'),
-    path('accounts/update/<str:email>/', update_account, name='update_account'),
-    path('accounts/delete/<str:email>/', delete_account, name='delete_account'),
+    path('account_manage/create/', create_account, name='create_account'),
+    path('account_manage/update/<str:email>/', update_account, name='update_account'),
+    path('account_manage/delete/<str:email>/', delete_account, name='delete_account'),
 
     # UserData
     path('user_data/', get_user_data, name='get_user_data'),
     path('user_data/<str:email>/', get_user_data_by_email, name='get_user_data_by_email'),
-    path('user_data/create/', create_user_data, name='create_user_data'),
-    path('user_data/update/<str:email>/', update_user_data, name='update_user_data'),
-    path('user_data/delete/<str:email>/', delete_user_data, name='delete_user_data'),
+    path('user_data_manage/create/', create_user_data, name='create_user_data'),
+    path('user_data_manage/update/<str:email>/', update_user_data, name='update_user_data'),
+    path('user_data_manage/delete/<str:email>/', delete_user_data, name='delete_user_data'),
 
     # Notes
     path('notes/', get_notes, name='get_notes'),

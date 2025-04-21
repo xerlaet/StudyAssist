@@ -2,7 +2,7 @@
 'use client';
 
 import { User2, LogOut } from 'lucide-react';
-import ChatSidebar from '@/components/chat/ChatSidebar';
+import ChatSidebar from '@/components/chat/ChatSideBar';
 import WelcomeBlock from '@/components/chat/WelcomeBlock';
 import InputBar from '@/components/chat/InputBar';
 import MessageBubble from '@/components/chat/MessageBubble';
@@ -26,7 +26,9 @@ export default function BotAssistant() {
   
           {/* Chat Content */}
           <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-            <WelcomeBlock />
+          <WelcomeBlock onSendMessage={(message) => {
+              console.log("User clicked suggestion:", message);
+          }} />
   
             <MessageBubble type="user" message="Can you explain the process of Photosynthesis?" />
   
@@ -35,8 +37,12 @@ export default function BotAssistant() {
               message="Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize foods with the help of chlorophyll. It’s how plants convert light energy into chemical energy."
             />
           </div>
-  
-          <InputBar />
+
+          <div className ="mt-6">
+          <InputBar onSendMessage={(message) => {
+            console.log("User clicked on input bar", message);
+          }}/>
+          </div>
         </div>
       </div>
     );
