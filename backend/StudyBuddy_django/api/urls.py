@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views_account import (
     # Account
     get_accounts, get_account, create_account, update_account, delete_account
@@ -107,4 +108,8 @@ urlpatterns = [
     path('blocks/create/', create_block, name='create_block'),
     path('blocks/update/<int:block_id>/', update_block, name='update_block'),
     path('blocks/delete/<int:block_id>/', delete_block, name='delete_block'),
+
+    #Set up JWT
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
