@@ -1,15 +1,16 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "@/app/firebase";
 
 export default function CreateAccount() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -33,7 +34,6 @@ export default function CreateAccount() {
       [name]: value,
     }));
 
-    // Field-specific validation
     switch (name) {
       case "username":
         if (!/^[A-Za-z\s]+$/.test(value)) {
@@ -59,21 +59,20 @@ export default function CreateAccount() {
         break;
 
       case "password":
-        if (value.length > 15) {
-          setErrors((prev) => ({
-            ...prev,
-            password: "Password must be less than 15 characters",
-          }));
-        } else if (value.length < 8) {
+        if (value.length < 8) {
           setErrors((prev) => ({
             ...prev,
             password: "Password must be at least 8 characters",
+          }));
+        } else if (value.length > 15) {
+          setErrors((prev) => ({
+            ...prev,
+            password: "Password must be less than 15 characters",
           }));
         } else {
           setErrors((prev) => ({ ...prev, password: "" }));
         }
 
-        // Also check if confirmPassword matches (on every password change)
         if (formData.confirmPassword && value !== formData.confirmPassword) {
           setErrors((prev) => ({
             ...prev,
@@ -82,7 +81,6 @@ export default function CreateAccount() {
         } else {
           setErrors((prev) => ({ ...prev, confirmPassword: "" }));
         }
-
         break;
 
       case "confirmPassword":
@@ -103,6 +101,7 @@ export default function CreateAccount() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setErrors({
       username: "",
       email: "",
@@ -111,42 +110,41 @@ export default function CreateAccount() {
       general: "",
     });
 
-    try {
-      const res = await fetch(
-        "http://localhost:8000/api/account_manage/create/",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        // Based on backend error message, update specific error field
-        if (data.message.includes("Username")) {
-          setErrors((prev) => ({ ...prev, username: data.message }));
-        } else if (
-          data.message.includes("Email required") ||
-          data.message.includes("Email already exists")
-        ) {
-          setErrors((prev) => ({ ...prev, email: data.message }));
-        } else if (data.message.includes("Password must be less than")) {
-          setErrors((prev) => ({ ...prev, password: data.message }));
-        } else if (data.message.includes("Passwords do not match")) {
-          setErrors((prev) => ({ ...prev, confirmPassword: data.message }));
-        } else {
-          setErrors((prev) => ({ ...prev, general: data.message }));
-        }
-      } else {
-        window.location.href = "/dashboard";
-      }
-    } catch (err) {
+    if (formData.password !== formData.confirmPassword) {
       setErrors((prev) => ({
         ...prev,
-        general: "Something went wrong. Please try again.",
+        confirmPassword: "Passwords do not match",
       }));
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      await updateProfile(userCredential.user, {
+        displayName: formData.username,
+      });
+
+      window.location.href = "/dashboard";
+    } catch (error: any) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "Email already in use";
+        setErrors((prev) => ({ ...prev, email: errorMessage }));
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address";
+        setErrors((prev) => ({ ...prev, email: errorMessage }));
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "Password is too weak";
+        setErrors((prev) => ({ ...prev, password: errorMessage }));
+      } else {
+        setErrors((prev) => ({ ...prev, general: errorMessage }));
+      }
     }
   };
 
@@ -182,11 +180,9 @@ export default function CreateAccount() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
+              {/* Username */}
               <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="username" className="block text-sm font-medium mb-1">
                   Username
                 </label>
                 <input
@@ -199,17 +195,14 @@ export default function CreateAccount() {
                   placeholder="Enter your Username"
                   required
                 />
+                {errors.username && (
+                  <p className="text-sm text-red-600 mt-1">{errors.username}</p>
+                )}
               </div>
 
-              {errors.username && (
-                <p className="text-sm text-red-600 mt-1">{errors.username}</p>
-              )}
-
+              {/* Email */}
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="email" className="block text-sm font-medium mb-1">
                   Email Address
                 </label>
                 <input
@@ -222,17 +215,14 @@ export default function CreateAccount() {
                   placeholder="Enter your email"
                   required
                 />
+                {errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                )}
               </div>
 
-              {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
-              )}
-
+              {/* Password */}
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="password" className="block text-sm font-medium mb-1">
                   Password
                 </label>
                 <div className="relative">
@@ -252,27 +242,20 @@ export default function CreateAccount() {
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
+                <p className="text-xs text-[#7f7b7b] mt-1">
+                  Password must be at least 8 characters long
+                </p>
+                {errors.password && (
+                  <p className="text-sm text-red-600 mt-1">{errors.password}</p>
+                )}
               </div>
 
-              <p className="text-xs text-[#7f7b7b] mt-1">
-                Password must be at least 8 characters long
-              </p>
-              {errors.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password}</p>
-              )}
-
+              {/* Confirm Password */}
               <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -298,21 +281,22 @@ export default function CreateAccount() {
                     )}
                   </button>
                 </div>
+                {errors.confirmPassword && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.confirmPassword}
+                  </p>
+                )}
               </div>
             </div>
 
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-600 mt-1">
-                {errors.confirmPassword}
-              </p>
-            )}
-
+            {/* General Error */}
             {errors.general && (
               <div className="text-center text-red-600 text-sm mb-4">
                 {errors.general}
               </div>
             )}
 
+            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
@@ -322,6 +306,7 @@ export default function CreateAccount() {
               </button>
             </div>
 
+            {/* Login Redirect */}
             <div className="text-center text-sm">
               <p className="text-[#7f7b7b]">
                 Already have an account?{" "}

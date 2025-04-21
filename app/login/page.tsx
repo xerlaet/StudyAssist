@@ -1,11 +1,15 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+} from "firebase/auth";
+import { auth } from "@/app/firebase";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +18,11 @@ export default function Login() {
     password: "",
     rememberMe: false,
   });
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -23,39 +32,102 @@ export default function Login() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
     try {
-      const res = await fetch(
-        `http://localhost:8000/api/accounts/${formData.email}/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
       );
 
-      if (!res.ok) {
-        throw new Error("User not found");
+      if (formData.rememberMe) {
+        localStorage.setItem("currentUser", JSON.stringify(userCredential.user));
+      } else {
+        sessionStorage.setItem("currentUser", JSON.stringify(userCredential.user));
       }
 
-      const data = await res.json();
-      if (data.password === formData.password) {
-        localStorage.setItem("currentUser", JSON.stringify(data));
-        window.location.href = "/dashboard";
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      if (err.code === "auth/user-not-found") {
+        setError("User not found");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Incorrect password");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email format");
       } else {
-        alert("Login failed! Please check your email and password.");
+        setError("Login failed. Please try again.");
       }
-    } catch (err) {
-      alert("Login failed! Unable to reach server or incorrect credentials.");
-      console.error("Login error:", err);
     }
   };
 
+  const handleSubmitForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!formData.email) {
+      setError("Please enter your email address");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, formData.email);
+      setSuccess("Password reset link sent to your email.");
+    } catch (err: any) {
+      if (err.code === "auth/user-not-found") {
+        setError("No account found with this email address");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email format");
+      } else {
+        setError("Failed to send reset email. Please try again.");
+      }
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!newPassword || !resetCode) {
+      setError("Please enter a new password.");
+      return;
+    }
+
+    try {
+      await confirmPasswordReset(auth, resetCode, newPassword);
+      setSuccess("Password has been reset. You can now log in.");
+      setForgotPassword(false);
+      setNewPassword("");
+      setResetCode("");
+    } catch (err: any) {
+      if (err.code === "auth/expired-action-code") {
+        setError("Reset link has expired.");
+      } else if (err.code === "auth/invalid-action-code") {
+        setError("Invalid reset code.");
+      } else {
+        setError("Failed to reset password.");
+      }
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get("mode");
+    const code = urlParams.get("oobCode");
+
+    if (mode === "resetPassword" && code) {
+      setForgotPassword(true);
+      setResetCode(code);
+    }
+  }, []);
+
   return (
     <main className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-between px-12 py-4 border-b border-[#e5e2e2]">
         <div className="flex items-center gap-2">
           <Image
@@ -73,21 +145,49 @@ export default function Login() {
         </Link>
       </header>
 
-      {/* Login Form */}
       <div className="flex-1 flex justify-center items-center px-4 py-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
-            <p className="text-[#7f7b7b]">Log in to your StudyBuddy account</p>
+            <h1 className="text-3xl font-bold mb-2">
+              {resetCode
+                ? "Set New Password"
+                : forgotPassword
+                ? "Reset Your Password"
+                : "Welcome Back"}
+            </h1>
+            <p className="text-[#7f7b7b]">
+              {resetCode
+                ? "Enter your new password below"
+                : forgotPassword
+                ? "Enter your email to receive a password reset link"
+                : "Log in to your StudyBuddy account"}
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6">
+              {success}
+            </div>
+          )}
+
+          <form
+            onSubmit={
+              resetCode
+                ? handleResetPassword
+                : forgotPassword
+                ? handleSubmitForgotPassword
+                : handleSubmitLogin
+            }
+            className="space-y-6"
+          >
             <div className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-1"
-                >
+                <label htmlFor="email" className="block text-sm font-medium mb-1">
                   Email Address
                 </label>
                 <input
@@ -102,84 +202,115 @@ export default function Login() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Password
-                </label>
-                <div className="relative">
+              {resetCode && (
+                <div>
+                  <label htmlFor="newPassword" className="block text-sm font-medium mb-1">
+                    New Password
+                  </label>
                   <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full px-4 py-3 border border-[#e5e2e2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#23AFB6]"
-                    placeholder="Enter your password"
+                    placeholder="Enter new password"
                     required
                   />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
                 </div>
-              </div>
+              )}
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="rememberMe"
-                    name="rememberMe"
-                    checked={formData.rememberMe}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-[#23AFB6] focus:ring-[#23AFB6] border-[#e5e2e2] rounded"
-                  />
-                  <label
-                    htmlFor="rememberMe"
-                    className="ml-2 block text-sm text-[#7f7b7b]"
-                  >
-                    Remember me
+              {!forgotPassword && !resetCode && (
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium mb-1">
+                    Password
                   </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-[#e5e2e2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#23AFB6]"
+                      placeholder="Enter your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#7f7b7b]"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <Link
-                    href="/forgot-password"
-                    className="text-[#23AFB6] hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
+              )}
+
+              {!forgotPassword && !resetCode && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="rememberMe"
+                      name="rememberMe"
+                      checked={formData.rememberMe}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-[#23AFB6] focus:ring-[#23AFB6] border-[#e5e2e2] rounded"
+                    />
+                    <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+                      Remember me
+                    </label>
+                  </div>
+                  <div className="text-sm">
+                    <button
+                      type="button"
+                      className="text-[#23AFB6] hover:underline"
+                      onClick={() => setForgotPassword(true)}
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <button
               type="submit"
               className="w-full py-3 bg-[#e3c5c3] rounded-lg font-medium hover:bg-[#d9b5b3] transition-colors"
             >
-              Log In
+              {resetCode
+                ? "Reset Password"
+                : forgotPassword
+                ? "Send Reset Link"
+                : "Log In"}
             </button>
 
-            <div className="text-center text-sm">
-              <p className="text-[#7f7b7b]">
-                Don't have an account? {" "}
-                <Link
-                  href="/create-account"
-                  className="text-[#23AFB6] font-medium"
-                >
-                  Sign up
-                </Link>
-              </p>
-            </div>
+            {(forgotPassword || resetCode) && (
+              <button
+                type="button"
+                className="w-full py-2 text-[#7f7b7b] font-medium hover:underline"
+                onClick={() => {
+                  setForgotPassword(false);
+                  setResetCode("");
+                  setSuccess("");
+                  setError("");
+                }}
+              >
+                Back to Login
+              </button>
+            )}
+
+            {!forgotPassword && !resetCode && (
+              <div className="text-center text-sm">
+                <p className="text-[#7f7b7b]">
+                  Don’t have an account?{" "}
+                  <Link href="/create-account" className="text-[#23AFB6] font-medium">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            )}
           </form>
         </div>
       </div>
