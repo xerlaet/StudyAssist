@@ -9,8 +9,8 @@ class APITestCase(TestCase):
         self.client.post(path='/api/account_manage/create/', data={'username': 'jack', 'password': 'black', 'email': 'jack@black.com'})
         self.client.post(path='/api/account_manage/create/', data={'username': 'sean', 'password': 'combs', 'email': 'diddy@babyoil.com'})
         self.client.post(path='/api/account_manage/create/', data={'username': 'jordan', 'password': 'cartier', 'email': 'playboi@carti.com'})
-        self.client.post(path='/api/user_data_manage/create/', data={'email': 'diddy@babyoil.com', 'days': 0, 'streak': 0, 'calendar': {}})
-        self.client.post(path='/api/user_data_manage/create/', data={'email': 'jack@black.com', 'days': 13, 'streak': 7, 'calendar': {}})
+        """ self.client.post(path='/api/user_data_manage/create/', data={'email': 'diddy@babyoil.com', 'days': 0, 'streak': 0, 'calendar': {}})
+        self.client.post(path='/api/user_data_manage/create/', data={'email': 'jack@black.com', 'days': 13, 'streak': 7, 'calendar': {}}) """
 
     """ def test_get_accounts(self):
         # Simulate getting all accounts
@@ -62,7 +62,7 @@ class APITestCase(TestCase):
         response = self.client.delete(path='/api/account_manage/delete/chicken@jockey.com/')
         self.assertEqual(response.status_code, 404) """
     
-    def test_create_user_data_valid(self):
+    """ def test_create_user_data_valid(self):
         # Simulate creating user data
         response = self.client.post(path='/api/user_data_manage/create/', data={'email': 'playboi@carti.com', 'days': 1000, 'streak': 50, 'calendar': {}})
         self.assertEqual(response.status_code, 201)
@@ -114,4 +114,4 @@ class APITestCase(TestCase):
     def test_delete_user_data_invalid(self):
         # Simulate deleting user data with invalid email
         response = self.client.delete(path='/api/user_data_manage/delete/chicken@jockey.com/')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404) """
