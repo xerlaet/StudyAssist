@@ -1,5 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from .views_firebase import firebase_test
 from .views_account import (
     # Account
     get_accounts, get_account, create_account, update_account, delete_account
@@ -124,4 +126,8 @@ urlpatterns = [
     path('reminders/create/', create_reminder, name='create_reminder'),
     path('reminders/update/<int:reminder_id>/', update_reminder, name='update_reminder'),
     path('reminders/delete/<int:reminder_id>/', delete_reminder, name='delete_reminder'),
+
+
+    #firebase 
+    path('firebase-test/', firebase_test, name='firebase_test'),
 ]
