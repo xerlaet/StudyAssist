@@ -29,6 +29,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { auth, db } from "@/lib/firebase"; // Import from firebase config
+import { collection, addDoc, query, where, getDocs, orderBy } from "firebase/firestore";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 export default function QuizInitialization() {
   const minInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +55,8 @@ export default function QuizInitialization() {
   const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
   const [topics, setTopics] = useState<string[]>(["Computer Science", "History"]);
   const [subtopics, setSubtopics] = useState<string[]>([]);
+  const [userQuizScores, setUserQuizScores] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const [quizzes, setQuizzes] = useState<Object[]>([
     { topic: "Computer Science", subtopic: "Data Structures", questions: [
       {
@@ -171,6 +176,74 @@ export default function QuizInitialization() {
     }
   ]);
 
+  // Check authenticated user
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        fetchUserQuizScores(currentUser.uid);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch user's quiz scores from Firebase
+  const fetchUserQuizScores = async (userId: string) => {
+    try {
+      // Access scores as a subcollection of users
+      const scoresRef = collection(db, "users", userId, "quizScores");
+      const q = query(
+        scoresRef,
+        orderBy("timestamp", "desc")
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const scores: any[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        scores.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      setUserQuizScores(scores);
+    } catch (error) {
+      console.error("Error fetching quiz scores:", error);
+    }
+  };
+
+  // Save quiz result to Firebase
+  const saveQuizResultToFirebase = async () => {
+    if (!user) {
+      console.error("No authenticated user");
+      return;
+    }
+  
+    try {
+      const percentage = Math.round(result.current[0] * 100 / result.current[1]);
+      const currentQuiz = quizzes[selectedQuizIndex.current as number] as any;
+      
+      const quizData = {
+        // Remove userId field since it's now implicit in the path
+        topic: selectedTopic.current,
+        subtopic: currentQuiz.subtopic,
+        score: percentage,
+        correctAnswers: result.current[0],
+        totalQuestions: result.current[1],
+        timestamp: new Date(),
+        timeTaken: timerEnabled ? ((duration.current || 0) - ((startTimeRef.current > 0) ? ((Date.now() - startTimeRef.current) / 1000) : 0)) : null
+      };
+      
+      // Add to user's subcollection instead of top-level collection
+      await addDoc(collection(db, "users", user.uid, "quizScores"), quizData);
+      await fetchUserQuizScores(user.uid); // Refresh scores
+    } catch (error) {
+      console.error("Error saving quiz result:", error);
+    }
+  };
+
   const getMessage = () => {
     const percentage = Math.round(result.current[0] * 100 / result.current[1]);
     if (percentage === 100) return "Perfect!"
@@ -204,21 +277,29 @@ export default function QuizInitialization() {
   };
 
   const handleStartQuiz = () => {
+    if (!user) {
+      setErrorMessage("Please sign in to take a quiz");
+      return;
+    }
+    
     if (minInputRef.current && secInputRef.current) {
       const minString = minInputRef.current.value || "";
       const secString = secInputRef.current.value || "";
       let hasError = false;
+      
       if (timerEnabled && (/\D/.test(minString) || /\D/.test(secString))) {
         setInvalidValueVisible(true);
         hasError = true;
       } 
-      if (!selectedQuizIndex.current) {
+      
+      if (selectedQuizIndex.current === null) {
         setErrorMessage("Select a topic and subtopic");
         hasError = true;
       }
-      //if (hasError) return;
+      
+      if (hasError) return;
 
-      const quizLength = (quizzes[selectedQuizIndex.current as number] as {questions: string}).questions.length;
+      const quizLength = (quizzes[selectedQuizIndex.current as number] as {questions: any[]}).questions.length;
       if (timerEnabled) {
         duration.current = parseInt(minString) * 60 + parseInt(secString);
       }
@@ -238,6 +319,7 @@ export default function QuizInitialization() {
       }
     });
     result.current = [numCorrect, numTotal];
+    saveQuizResultToFirebase(); // Save quiz result to Firebase
     setQuizState("end");
   };
 
@@ -249,13 +331,14 @@ export default function QuizInitialization() {
   };
 
   useEffect(() => {
-    const getQuizzes = async () => {
-      const quizResp = await fetch("http://localhost:8000/api/get_quizzes");
-      const quizRespObj = await quizResp.json();
-      if (quizRespObj && Object.keys(quizRespObj).length > 0) {
-        setQuizzes(quizRespObj);
-      }
-    };
+    // Original API fetch for quizzes (commented out as in original code)
+    // const getQuizzes = async () => {
+    //   const quizResp = await fetch("http://localhost:8000/api/get_quizzes");
+    //   const quizRespObj = await quizResp.json();
+    //   if (quizRespObj && Object.keys(quizRespObj).length > 0) {
+    //     setQuizzes(quizRespObj);
+    //   }
+    // };
     // getQuizzes();
 
     return () => {
@@ -308,10 +391,40 @@ export default function QuizInitialization() {
 
   return (
     <Card className="max-w-4xl mx-auto">
-      {quizState === "init" &&
+      {!user && quizState === "init" && (
+        <CardContent className="flex flex-col items-center justify-center py-8">
+          <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
+          <p className="text-muted-foreground mb-6">You need to be signed in to take quizzes</p>
+          <Link href="/login">
+            <Button>Sign In</Button>
+          </Link>
+        </CardContent>
+      )}
+      
+      {user && quizState === "init" &&
       <>
         <CardContent>
-          <h1 className="text-3xl font-bold">Quiz</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Quiz</h1>
+            <div className="text-sm text-muted-foreground">
+              Signed in as: {user.email}
+            </div>
+          </div>
+          
+          {userQuizScores.length > 0 && (
+            <div className="mb-6 mt-4 p-4 bg-slate-50 rounded-lg border">
+              <h3 className="font-semibold mb-2">Recent Quiz Scores</h3>
+              <div className="space-y-2">
+                {userQuizScores.slice(0, 3).map((score, idx) => (
+                  <div key={score.id} className="flex justify-between text-sm">
+                    <span>{score.subtopic}</span>
+                    <span className="font-medium">{score.score}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-[auto_1fr] auto-rows-auto gap-4 mt-8">
             <span className="flex items-center">Topic</span>
             <Select onValueChange={(value) => handleTopicSelect(value)}>
@@ -377,13 +490,14 @@ export default function QuizInitialization() {
           </div>
         </CardFooter>
       </>}
+      
       {quizState === "start" &&
       <>
         <CardContent className="flex flex-col justify-baseline items-start gap-2">
           <div className="flex justify-between items-start w-full">
             <div>
               <h1 className="text-3xl font-bold">Quiz</h1>
-              <span className="font-light">Question {quizPageNum} of {(quizzes[selectedQuizIndex.current as number] as {questions: string}).questions.length}</span>
+              <span className="font-light">Question {quizPageNum} of {(quizzes[selectedQuizIndex.current as number] as {questions: any[]}).questions.length}</span>
             </div>
             {timerEnabled && 
             <div className="relative">
@@ -454,19 +568,19 @@ export default function QuizInitialization() {
                 >{index + 1}</PaginationItem>
               ))}
               <PaginationItem>
-                {(quizzes[selectedQuizIndex.current as number] as {questions: string}).questions.length === quizPageNum && 
+                {(quizzes[selectedQuizIndex.current as number] as {questions: any[]}).questions.length === quizPageNum && 
                 <Button
                   className="cursor-pointer ml-4 w-19 select-none"
                   onClick={() => handleSubmitQuiz()}
                 >
                   Submit
                 </Button>}
-                {(quizzes[selectedQuizIndex.current as number] as {questions: string}).questions.length !== quizPageNum &&
+                {(quizzes[selectedQuizIndex.current as number] as {questions: any[]}).questions.length !== quizPageNum &&
                   <PaginationNext
                     className="cursor-pointer ml-4 w-19 select-none"
                     onClick={(e) => {
                       e.preventDefault();
-                      setQuizPageNum(Math.min(quizPageNum + 1, (quizzes[selectedQuizIndex.current as number] as {questions: string}).questions.length));
+                      setQuizPageNum(Math.min(quizPageNum + 1, (quizzes[selectedQuizIndex.current as number] as {questions: any[]}).questions.length));
                     }}
                   />
                 }
@@ -475,6 +589,7 @@ export default function QuizInitialization() {
           </Pagination>
         </CardFooter>
       </>}
+      
       {quizState === "end" &&
       <>
         <CardContent>
@@ -499,6 +614,31 @@ export default function QuizInitialization() {
               </div>
               <Progress value={Math.round(result.current[0] * 100 / result.current[1])} className="h-2" />
             </div>
+            
+            {userQuizScores.length > 0 && (
+              <div className="mt-8 border-t pt-4">
+                <h3 className="font-semibold mb-2">Your Quiz History</h3>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {userQuizScores.map((score, idx) => (
+                    <div key={score.id} className="flex justify-between text-sm border-b pb-2">
+                      <div>
+                        <span className="font-medium">{score.subtopic}</span>
+                        <span className="text-xs text-gray-500 ml-2">
+                          {new Date(score.timestamp.seconds * 1000).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <span className={
+                        score.score >= 90 ? "text-green-600 font-bold" :
+                        score.score >= 70 ? "text-blue-600 font-medium" :
+                        "text-gray-600"
+                      }>
+                        {score.score}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
         <CardFooter>
@@ -514,4 +654,4 @@ export default function QuizInitialization() {
       </>}
     </Card>
   );
-};
+}
