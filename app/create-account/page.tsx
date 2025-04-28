@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/app/firebase";
+import { auth } from "@/lib/firebase";
 
 export default function CreateAccount() {
   const [showPassword, setShowPassword] = useState(false);
