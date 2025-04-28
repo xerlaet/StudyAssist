@@ -330,17 +330,6 @@ export default function QuizInitialization() {
     setQuizState("init");
   };
 
-  useEffect(() => {
-    // Original API fetch for quizzes (commented out as in original code)
-    // const getQuizzes = async () => {
-    //   const quizResp = await fetch("http://localhost:8000/api/get_quizzes");
-    //   const quizRespObj = await quizResp.json();
-    //   if (quizRespObj && Object.keys(quizRespObj).length > 0) {
-    //     setQuizzes(quizRespObj);
-    //   }
-    // };
-    // getQuizzes();
-
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
