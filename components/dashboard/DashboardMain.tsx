@@ -17,6 +17,7 @@ import {
   addDoc,
   deleteDoc,
   updateDoc,
+  arrayUnion,
   serverTimestamp,
 } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
@@ -53,58 +54,81 @@ async function createUserProfileIfNotExist(user: User): Promise<void> {
   }
 }
 
-interface CardData {
-  id: string;
-  title: string;
-  value: string;
-  change: string;
+// --- Helper to initialize any sub-collection document ---
+async function ensureSubCollectionDoc<T>(
+  user: User,
+  subCollection: string,
+  docId: string,
+  defaultData: T
+): Promise<void> {
+  const ref = doc(db, 'users', user.uid, subCollection, docId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    await setDoc(ref, { ...defaultData, createdAt: serverTimestamp() });
+    console.log(`${subCollection}/${docId} created`);
+  } else {
+    console.log(`${subCollection}/${docId} already exists.`);
+  }
 }
 
-interface TaskData {
-  id: string;
-  title: string;
-  status: string;
-  [key: string]: any;
-}
-
-interface StudySessionData {
-  id: string;
-  sessionName: string;
-  duration: number;
-  [key: string]: any;
-}
-
-interface StudyBuddyData {
-  id: string;
-  buddyName: string;
-  [key: string]: any;
-}
+interface CardData { id: string; title: string; value: string; change: string; }
+interface TaskData { id: string; title: string; status: string; [key: string]: any; }
+interface StudySessionData { id: string; sessionName: string; duration: number; [key: string]: any; }
+interface StudyBuddyData { id: string; buddyName: string; [key: string]: any; }
 
 export default function DashboardMain() {
   const [activeTab, setActiveTab] = useState<string>('overview');
-
   const [overviewData, setOverviewData] = useState<CardData[]>([]);
   const [taskData, setTaskData] = useState<TaskData[]>([]);
   const [sessionsData, setSessionsData] = useState<StudySessionData[]>([]);
   const [buddiesData, setBuddiesData] = useState<StudyBuddyData[]>([]);
-
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
-
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       setAuthLoading(false);
       if (user) {
-        createUserProfileIfNotExist(user);
+        // 1) Create main user profile & userdata
+        await createUserProfileIfNotExist(user);
+
+        // 2) Initialize sub-collections under users/{uid}
+        await ensureSubCollectionDoc(user, 'profile', 'defaultProfile', {});
+        await ensureSubCollectionDoc(user, 'calendar', 'eventsList', { events: [] });
+        await ensureSubCollectionDoc(user, 'resourceHub', 'default', {});
+        await ensureSubCollectionDoc(user, 'botAssist', 'default', {});
+        await ensureSubCollectionDoc(user, 'friends', 'default', {});
+        await ensureSubCollectionDoc(user, 'settings', 'profileSettings', {
+          darkMode: false,
+          fontSize: 14,
+          timezone: 'America/Chicago',
+          enableNotifications: true,
+          notificationFrequency: 'daily',
+        });
       }
     });
     return () => unsubscribe();
   }, []);
+
+  // Function to add an event to the calendar list
+  const addEventToCalendar = async (event: {
+    title: string;
+    eventDate: string;
+    startTime: string;
+    endTime: string;
+    description: string;
+  }) => {
+    if (!user) return;
+    const calRef = doc(db, 'users', user.uid, 'calendar', 'eventsList');
+    await updateDoc(calRef, {
+      events: arrayUnion({ ...event, createdAt: serverTimestamp() }),
+    });
+  };
+
 
   const fetchOverview = async () => {
     if (!user) return;
