@@ -9,7 +9,7 @@ import {
   sendPasswordResetEmail,
   confirmPasswordReset,
 } from "firebase/auth";
-import { auth } from "@/app/firebase";
+import { auth } from "@/lib/firebase";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +32,9 @@ export default function Login() {
     }));
   };
 
+  /**
+   * Log the user in and redirect to the dashboard.
+   */
   const handleSubmitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -44,26 +47,41 @@ export default function Login() {
         formData.password
       );
 
-      if (formData.rememberMe) {
-        localStorage.setItem("currentUser", JSON.stringify(userCredential.user));
-      } else {
-        sessionStorage.setItem("currentUser", JSON.stringify(userCredential.user));
-      }
+      // Persist user based on "Remember me"
+      const storage = formData.rememberMe ? localStorage : sessionStorage;
+      storage.setItem("currentUser", JSON.stringify(userCredential.user));
 
+      // 🔐 Get ID token and call the Django backend
+      const idToken = await userCredential.user.getIdToken();
+      await fetch("http://localhost:8000/api/firebase-test/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+
+      // ⏩ Redirect
       window.location.href = "/dashboard";
     } catch (err: any) {
-      if (err.code === "auth/user-not-found") {
-        setError("User not found");
-      } else if (err.code === "auth/wrong-password") {
-        setError("Incorrect password");
-      } else if (err.code === "auth/invalid-email") {
-        setError("Invalid email format");
-      } else {
-        setError("Login failed. Please try again.");
+      switch (err.code) {
+        case "auth/user-not-found":
+          setError("User not found");
+          break;
+        case "auth/wrong-password":
+          setError("Incorrect password");
+          break;
+        case "auth/invalid-email":
+          setError("Invalid email format");
+          break;
+        default:
+          setError("Login failed. Please try again.");
       }
     }
   };
 
+  /**
+   * Send a password‑reset email.
+   */
   const handleSubmitForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -88,6 +106,9 @@ export default function Login() {
     }
   };
 
+  /**
+   * Confirm the password‑reset action coming from the email link.
+   */
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -115,6 +136,9 @@ export default function Login() {
     }
   };
 
+  /**
+   * Extract reset code from query parameters if the user came from the email link.
+   */
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get("mode");
@@ -128,6 +152,7 @@ export default function Login() {
 
   return (
     <main className="min-h-screen flex flex-col">
+      {/* ── Header ─────────────────────────────────────────────────── */}
       <header className="flex items-center justify-between px-12 py-4 border-b border-[#e5e2e2]">
         <div className="flex items-center gap-2">
           <Image
@@ -145,6 +170,7 @@ export default function Login() {
         </Link>
       </header>
 
+      {/* ── Body ───────────────────────────────────────────────────── */}
       <div className="flex-1 flex justify-center items-center px-4 py-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
@@ -186,6 +212,7 @@ export default function Login() {
             className="space-y-6"
           >
             <div className="space-y-4">
+              {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-1">
                   Email Address
@@ -202,6 +229,7 @@ export default function Login() {
                 />
               </div>
 
+              {/* New password (reset flow) */}
               {resetCode && (
                 <div>
                   <label htmlFor="newPassword" className="block text-sm font-medium mb-1">
@@ -220,6 +248,7 @@ export default function Login() {
                 </div>
               )}
 
+              {/* Password (login flow) */}
               {!forgotPassword && !resetCode && (
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium mb-1">
@@ -247,6 +276,7 @@ export default function Login() {
                 </div>
               )}
 
+              {/* Remember me + Forgot password */}
               {!forgotPassword && !resetCode && (
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -275,17 +305,15 @@ export default function Login() {
               )}
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               className="w-full py-3 bg-[#e3c5c3] rounded-lg font-medium hover:bg-[#d9b5b3] transition-colors"
             >
-              {resetCode
-                ? "Reset Password"
-                : forgotPassword
-                ? "Send Reset Link"
-                : "Log In"}
+              {resetCode ? "Reset Password" : forgotPassword ? "Send Reset Link" : "Log In"}
             </button>
 
+            {/* Back to login link (reset / forgot screens) */}
             {(forgotPassword || resetCode) && (
               <button
                 type="button"
@@ -301,6 +329,7 @@ export default function Login() {
               </button>
             )}
 
+            {/* Sign‑up link */}
             {!forgotPassword && !resetCode && (
               <div className="text-center text-sm">
                 <p className="text-[#7f7b7b]">
