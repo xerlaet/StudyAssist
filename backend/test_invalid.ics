@@ -18,15 +18,15 @@ BEGIN:STANDARD
 TZNAME:EST
 TZOFFSETFROM:-0400
 TZOFFSETTO:-0500
-DTSTART:safdsafdasfsdafsd
+DTSTART:
 RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-DTSTAMP:asdfsadfdsa
+DTSTAMP:
 UID:1743990912445-2506277@ical.marudot.com
-DTSTART;TZID=America/Port-au-Prince:fdsafdsaf
-DTEND;TZID=America/Port-au-Prince:asdfsafdsa
+DTSTART;TZID=America/Port-au-Prince:
+DTEND;TZID=America/Port-au-Prince:
 SUMMARY:Team Meeting
 DESCRIPTION:Discuss project updates and next steps.
 END:VEVENT

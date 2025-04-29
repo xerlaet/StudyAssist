@@ -95,7 +95,7 @@ export default function CalendarPage() {
                     // Ensure start and end times are valid
                     const startDate = event.startDate.toJSDate();
                     const endDate = event.endDate.toJSDate();
-                    if (!(startDate instanceof Date) || !(endDate instanceof Date) || startDate >= endDate) {
+                    if (!(startDate instanceof Date) || !(endDate instanceof Date) || startDate > endDate) {
                         throw new Error("Invalid event: Invalid or inconsistent start and end times.");
                     }
 
