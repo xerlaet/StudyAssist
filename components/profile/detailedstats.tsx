@@ -27,8 +27,8 @@ export default function DetailedStats() {
               <div
                 className="w-full bg-primary rounded-t-md relative group"
                 style={{ height: `${(day.hours / maxHours) * 100}%` }}
-              >
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+              > {/* Hover Tooltip */}
+                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                   {day.hours} hrs
                 </div>
               </div>
