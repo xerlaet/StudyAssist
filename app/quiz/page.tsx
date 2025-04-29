@@ -330,6 +330,7 @@ export default function QuizInitialization() {
     setQuizState("init");
   };
 
+  useEffect(() => {
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
