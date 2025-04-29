@@ -2,18 +2,14 @@
 
 import { useEffect, useState } from "react"
 import { UserPlus } from "lucide-react"
+import { collection, getDocs } from "firebase/firestore"
+import { onAuthStateChanged, User } from "firebase/auth"
+import { auth, db } from "@/lib/firebase"
 
 type Account = {
-  account_id: number
-  email: string
+  account_id: string
+  email?: string
   username: string
-}
-
-type Friend = {
-  friend_id: number
-  user_email: number
-  friend_email: number
-  chat_history: string
 }
 
 const dummyGroups = [
@@ -21,7 +17,7 @@ const dummyGroups = [
     title: "CS 1234 Project",
     date: "Wednesday, March 19",
     time: "2:30PM",
-    location: "JO 2.222", 
+    location: "JO 2.222",
     friends: "John Doe, Jane Doe, and 1 other",
   },
   {
@@ -43,53 +39,41 @@ const dummyGroups = [
 export default function FriendsPage() {
   const [search, setSearch] = useState("")
   const [activeTab, setActiveTab] = useState<"friends" | "groups">("friends")
-  const [allAccounts, setAllAccounts] = useState<Account[]>([])
-  const [friendConnections, setFriendConnections] = useState<Friend[]>([])
   const [myFriends, setMyFriends] = useState<Account[]>([])
-
-  const currentUserId = 3 // replace with actual logged-in user ID
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) return
+
+      setCurrentUser(user)
+
       try {
-        const [friendRes, accountRes] = await Promise.all([
-          fetch("http://localhost:8000/api/friends/"),
-          fetch("http://localhost:8000/api/accounts/")
-        ])
+        const friendsSnapshot = await getDocs(collection(db, "users", user.uid, "friends"))
 
-        if (!friendRes.ok || !accountRes.ok) {
-          console.error("One of the responses failed:", friendRes.status, accountRes.status)
-          return
-        }
+        const friendsList: Account[] = friendsSnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            account_id: doc.id,
+            username: data.username || "Unnamed",
+            email: data.email || "",
+          }
+        })
 
-        const friendsData: Friend[] = await friendRes.json()
-        const accountsData: Account[] = await accountRes.json()
-
-        setAllAccounts(accountsData)
-        setFriendConnections(friendsData)
-
-        const friendIds = friendsData
-          .filter(f => f.user_email === currentUserId)
-          .map(f => f.friend_email)
-
-        const matchedFriends = accountsData.filter(acc =>
-          friendIds.includes(acc.account_id)
-        )
-
-        setMyFriends(matchedFriends)
+        setMyFriends(friendsList)
       } catch (error) {
-        console.error("Error fetching friends or accounts:", error)
+        console.error("Error fetching friends from Firestore:", error)
       }
-    }
+    })
 
-    fetchData()
+    return () => unsubscribe()
   }, [])
 
   const filteredFriends = search.trim() === ""
-    ? myFriends
-    : myFriends.filter(friend =>
-        friend.email.toLowerCase().includes(search.trim().toLowerCase())
-      )
+  ? myFriends
+  : myFriends.filter(friend =>
+      friend.username.toLowerCase().includes(search.trim().toLowerCase())
+    )
 
   return (
     <div className="space-y-6">
