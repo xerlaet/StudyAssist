@@ -11,6 +11,7 @@ import {
   Bot,
   Users,
   Settings,
+  CircleUser,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -26,11 +27,13 @@ export function ClientLayout({ children }: { children: React.ReactNode; }) {
   const pageName = pathname.split("/")[1];
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsLoggedIn(true);
+        setUsername(user.displayName);
       } else {
         setIsLoggedIn(false);
       }
@@ -79,9 +82,13 @@ export function ClientLayout({ children }: { children: React.ReactNode; }) {
 
             <div className="flex w-full justify-end items-center pr-8 gap-2">
               {isLoggedIn ? (
-                <Button variant="outline" className="cursor-pointer" onClick={handleLogout}>
-                  Log Out
-                </Button>
+                <div className="flex justify-end items-center gap-2">
+                  <CircleUser/>
+                  <span className="text-2xl">{username}</span>
+                  <Button variant="outline" className="cursor-pointer" onClick={handleLogout}>
+                    Log Out
+                  </Button>
+                </div>
               ) : (
                 <>
                   <Link href="/login" passHref>
