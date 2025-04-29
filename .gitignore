@@ -43,3 +43,5 @@ amplifyconfiguration*
 
 # Ignore environment files
 .env
+
+/backend/StudyBuddy_django/firebase_service_account.json
