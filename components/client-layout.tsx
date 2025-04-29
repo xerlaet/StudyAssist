@@ -84,7 +84,7 @@ export function ClientLayout({ children }: { children: React.ReactNode; }) {
               {isLoggedIn ? (
                 <div className="flex justify-end items-center gap-3">
                   <CircleUser className="text-neutral-600"/>
-                  <span className="text-lg pr-3 text-neutral-600">testUser</span>
+                  <span className="text-lg pr-3 text-neutral-600">{username}</span>
                   <Button variant="outline" className="cursor-pointer" onClick={handleLogout}>
                     Log Out
                   </Button>
