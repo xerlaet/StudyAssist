@@ -53,7 +53,7 @@ export default function ProfilePage() {
         </TabsContent>
         <TabsContent value="detailed">
           <DetailedStats />
-          <div className="mt-6 p-4 bg-white border rounded shadow space-y-2">
+          {/* <div className="mt-6 p-4 bg-white border rounded shadow space-y-2">
             <h2 className="text-lg font-semibold">Quiz Scores for User #{hardcodedUserId}</h2>
             {quizzes.length > 0 ? (
               <>
@@ -69,7 +69,7 @@ export default function ProfilePage() {
             ) : (
               <p className="text-muted-foreground text-sm">No quizzes found for this user.</p>
             )}
-          </div>
+          </div> */}
         </TabsContent>
         <TabsContent value="achievements">
           <Achievements />
