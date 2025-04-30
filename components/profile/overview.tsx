@@ -1,20 +1,55 @@
-// components/profile/Overview.tsx
+"use client";
 
-"use client"
-
-import {
-  CalendarDays,
-  CheckCircle2,
-  Award,
-  BarChart3,
-} from "lucide-react"
+import { useEffect, useState } from "react";
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { CalendarDays, CheckCircle2, Award, BarChart3 } from "lucide-react";
 
 export default function Overview() {
+  const [profileData, setProfileData] = useState<{
+    hoursLogged: number;
+    tasksCompleted: number;
+    username: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await fetchProfileData(user.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchProfileData = async (uid: string) => {
+    try {
+      const docRef = doc(db, "users", uid, "userdata", "profile");
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setProfileData({
+          hoursLogged: data.hoursLogged || 0,
+          tasksCompleted: data.tasksCompleted || 0,
+          username: data.username || "Unnamed",
+        });
+      } else {
+        console.error("No profile document found!");
+      }
+    } catch (error) {
+      console.error("Failed to fetch profile data:", error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold">Hello, User</h1>
+        <h1 className="text-3xl font-bold">
+          {profileData ? `Hello, ${profileData.username}` : "Hello, User"}
+        </h1>
         <p className="text-gray-500 mt-1">
           You are currently on day{" "}
           <span className="text-[#23b0ba] font-semibold">10</span>
@@ -59,5 +94,5 @@ export default function Overview() {
         </div>
       </div>
     </div>
-  )
+  );
 }
