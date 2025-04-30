@@ -8,6 +8,12 @@ import {
   Plus,
   MoreHorizontal,
   Trash2,
+  FilePdf,
+  FileSpreadsheet,
+  FileImage,
+  FileVideo,
+  FileArchive,
+  FileCode,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -91,9 +97,22 @@ export default function ResourcePage() {
     fetchFiles();
   }, []);
 
-  useEffect(() => {
-    console.log("Files state:", files);
-  }, [files]);
+//   useEffect(() => {
+//     console.log("Files state:", files);
+//   }, [files]);
+
+  const getFileIcon = (type: string) => {
+    if (type.includes("pdf")) return <FileText className="h-5 w-5 text-red-600" />;
+    if (type.includes("spreadsheet") || type.includes("excel"))
+      return <FileSpreadsheet className="h-5 w-5 text-green-600" />;
+    if (type.includes("image")) return <FileImage className="h-5 w-5 text-blue-600" />;
+    if (type.includes("video")) return <FileVideo className="h-5 w-5 text-purple-600" />;
+    if (type.includes("zip") || type.includes("archive"))
+      return <FileArchive className="h-5 w-5 text-yellow-600" />;
+    if (type.includes("code") || type.includes("javascript") || type.includes("html"))
+      return <FileCode className="h-5 w-5 text-gray-600" />;
+    return <FileText className="h-5 w-5 text-blue-600" />; // Default icon
+  };
 
   return (
     <div className="flex flex-col space-y-8">
@@ -124,7 +143,7 @@ export default function ResourcePage() {
               <div className="p-4 bg-white flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-blue-50 p-2 rounded-md border border-blue-100">
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    {getFileIcon(file.type)} {/* Render the appropriate icon */}
                   </div>
                   <div>
                     <p className="font-medium">{file.name}</p>
