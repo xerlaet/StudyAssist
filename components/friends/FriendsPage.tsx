@@ -148,9 +148,14 @@ export default function FriendsPage() {
               <p className="text-sm text-muted-foreground">{group.date}</p>
               <p className="text-sm text-muted-foreground mb-2">{group.time}</p>
               <p className="text-sm text-muted-foreground italic">{group.location}</p>
-              <button className="mt-3 px-4 py-1 rounded-md bg-green-300 hover:bg-green-400 text-black text-sm font-semibold shadow">
+              <a
+                href="https://meet.google.com/gci-zvvm-ksv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 px-4 py-1 rounded-md bg-green-300 hover:bg-green-400 text-black text-sm font-semibold shadow text-center"
+              >
                 Join
-              </button>
+              </a>
               <p className="text-xs text-muted-foreground mt-2">
                 Friends in event: {group.friends}
               </p>
