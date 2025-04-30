@@ -49,7 +49,7 @@ export default function ProfilePage() {
   return (
     <div className="px-6 py-4 w-full">
       <h1 className="text-2xl font-semibold mb-4">
-        Profile {profileData ? `- ${profileData.username}` : ""}
+        Profile
       </h1>
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="mb-4">
