@@ -44,4 +44,4 @@ amplifyconfiguration*
 # Ignore environment files
 .env
 
-/backend/StudyBuddy_django/firebase_service_account.json
+/backend/StudyBuddy_django/api/studyassist-d13b1-firebase-adminsdk-fbsvc-dc07b97726.json
