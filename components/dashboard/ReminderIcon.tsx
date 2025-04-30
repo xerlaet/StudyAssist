@@ -11,7 +11,7 @@ export default function ReminderIcon() {
     <div className="relative">
       {/* Reminder Button */}
       <button onClick={() => setShowReminder(!showReminder)}>
-        <Bell className="h-6 w-6 text-gray-700 hover:text-black transition" />
+        <Bell className="size-8 text-gray-700 hover:text-black transition" />
       </button>
 
       {/* Reminder Popup */}

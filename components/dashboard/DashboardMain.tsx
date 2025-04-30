@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import HeaderTitle from "@/components/header-title";
 import ChartsSection from "./ChartsSection";
 import OverviewCards from "./OverviewCards";
+import ReminderIcon from '@/components/dashboard/ReminderIcon';
 
 import {
   collection,
@@ -56,16 +57,20 @@ export interface WeekGraphPoint {
 // Clock component (pure client-side)
 // -----------------------------------------------------------------------------
 const Clock = () => {
-  const [time, setTime] = useState<Date>(() => new Date());
+  const [timeString, setTimeString] = useState<string>("");
 
   useEffect(() => {
-    const intervalId = setInterval(() => setTime(new Date()), 1_000);
+    const updateTime = () => {
+      setTimeString(new Date().toLocaleTimeString());
+    };
+    updateTime();
+    const intervalId = setInterval(updateTime, 1_000);
     return () => clearInterval(intervalId);
   }, []);
 
   return (
-    <div className="absolute top-5 left-0 w-full text-center text-xl font-semibold">
-      {time.toLocaleTimeString()}
+    <div className="text-3xl font-semibold">
+      {timeString}
     </div>
   );
 };
@@ -311,7 +316,10 @@ export default function DashboardMain() {
   // -------------------------------------------------------------------------
   return (
     <div className="relative flex-1 bg-white px-12 py-8 max-w-6xl mx-auto">
-      <Clock />
+      <div className="flex items-center justify-between">
+        <Clock />
+        <ReminderIcon/>
+      </div>
       <HeaderTitle />
       <Separator className="my-4" />
 
