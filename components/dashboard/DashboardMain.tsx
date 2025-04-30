@@ -23,7 +23,6 @@ import {
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { db } from '@/lib/firebase';
 
-// --- Function to create user profile ---
 async function createUserProfileIfNotExist(user: User): Promise<void> {
   const userRef = doc(db, 'users', user.uid);
   const userSnap = await getDoc(userRef);
@@ -54,7 +53,6 @@ async function createUserProfileIfNotExist(user: User): Promise<void> {
   }
 }
 
-// --- Helper to initialize any sub-collection document ---
 async function ensureSubCollectionDoc<T>(
   user: User,
   subCollection: string,
@@ -73,15 +71,11 @@ async function ensureSubCollectionDoc<T>(
 
 interface CardData { id: string; title: string; value: string; change: string; }
 interface TaskData { id: string; title: string; status: string; [key: string]: any; }
-interface StudySessionData { id: string; sessionName: string; duration: number; [key: string]: any; }
-interface StudyBuddyData { id: string; buddyName: string; [key: string]: any; }
 
 export default function DashboardMain() {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [overviewData, setOverviewData] = useState<CardData[]>([]);
   const [taskData, setTaskData] = useState<TaskData[]>([]);
-  const [sessionsData, setSessionsData] = useState<StudySessionData[]>([]);
-  const [buddiesData, setBuddiesData] = useState<StudyBuddyData[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
   const [user, setUser] = useState<User | null>(null);
@@ -93,10 +87,8 @@ export default function DashboardMain() {
       setUser(user);
       setAuthLoading(false);
       if (user) {
-        // 1) Create main user profile & userdata
         await createUserProfileIfNotExist(user);
 
-        // 2) Initialize sub-collections under users/{uid}
         await ensureSubCollectionDoc(user, 'profile', 'defaultProfile', {});
         await ensureSubCollectionDoc(user, 'calendar', 'eventsList', { events: [] });
         await ensureSubCollectionDoc(user, 'resourceHub', 'default', {});
@@ -113,22 +105,6 @@ export default function DashboardMain() {
     });
     return () => unsubscribe();
   }, []);
-
-  // Function to add an event to the calendar list
-  const addEventToCalendar = async (event: {
-    title: string;
-    eventDate: string;
-    startTime: string;
-    endTime: string;
-    description: string;
-  }) => {
-    if (!user) return;
-    const calRef = doc(db, 'users', user.uid, 'calendar', 'eventsList');
-    await updateDoc(calRef, {
-      events: arrayUnion({ ...event, createdAt: serverTimestamp() }),
-    });
-  };
-
 
   const fetchOverview = async () => {
     if (!user) return;
@@ -197,33 +173,6 @@ export default function DashboardMain() {
     setTaskData(formatted);
   };
 
-  const fetchSessions = async () => {
-    if (!user) return;
-    const snap = await getDocs(collection(db, 'users', user.uid, 'studySessions'));
-    const formatted: StudySessionData[] = snap.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        sessionName: data.sessionName,
-        duration: data.duration,
-      };
-    });
-    setSessionsData(formatted);
-  };
-
-  const fetchBuddies = async () => {
-    if (!user) return;
-    const snap = await getDocs(collection(db, 'users', user.uid, 'studyBuddies'));
-    const formatted: StudyBuddyData[] = snap.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        buddyName: data.buddyName,
-      };
-    });
-    setBuddiesData(formatted);
-  };
-
   const handleAddTask = async () => {
     if (!user || !newTaskTitle || !newTaskDueDate) return;
     const taskRef = collection(db, 'users', user.uid, 'tasks');
@@ -255,12 +204,6 @@ export default function DashboardMain() {
       case 'task':
         fetchTasks();
         break;
-      case 'study-session':
-        fetchSessions();
-        break;
-      case 'study-buddies':
-        fetchBuddies();
-        break;
       default:
         break;
     }
@@ -269,8 +212,6 @@ export default function DashboardMain() {
   const tabs = [
     { label: 'Overview', value: 'overview' },
     { label: 'Task', value: 'task' },
-    { label: 'Study Session', value: 'study-session' },
-    { label: 'Study Buddies', value: 'study-buddies' },
   ];
 
   return (
@@ -337,35 +278,6 @@ export default function DashboardMain() {
               <p className="text-gray-500">No tasks yet...</p>
             )}
           </div>
-        </div>
-      )}
-
-      {activeTab === 'study-session' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {sessionsData.length > 0 ? (
-            sessionsData.map((session) => (
-              <div key={session.id} className="p-4 bg-blue-50 rounded shadow">
-                <h3 className="text-sm text-gray-700">{session.sessionName}</h3>
-                <p className="text-gray-500">{session.duration} mins</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No study sessions yet...</p>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'study-buddies' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {buddiesData.length > 0 ? (
-            buddiesData.map((buddy) => (
-              <div key={buddy.id} className="p-4 bg-blue-50 rounded shadow">
-                <h3 className="text-sm text-gray-700">{buddy.buddyName}</h3>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No buddies yet...</p>
-          )}
         </div>
       )}
     </div>

@@ -27,10 +27,7 @@ from .views_event import (
     get_events, get_event, create_event, update_event, delete_event
 )
 
-from .views_setting import (
-    # Setting
-    get_settings, get_setting, create_setting, update_setting, delete_setting
-)
+from . import views_setting
 
 from .views_friend import (
     # Friend
@@ -89,11 +86,11 @@ urlpatterns = [
     path('events/delete/<int:event_id>/', delete_event, name='delete_event'),
 
     # Settings
-    path('settings/', get_settings, name='get_settings'),
-    path('settings/<str:email>/', get_setting, name='get_setting'),
-    path('settings/create/', create_setting, name='create_setting'),
-    path('settings/update/<str:email>/', update_setting, name='update_setting'),
-    path('settings/delete/<str:email>/', delete_setting, name='delete_setting'),
+     path('settings/', views_setting.get_settings, name='get_all_settings'),
+    path('settings/<str:email>/', views_setting.get_setting, name='get_single_setting'),
+    path('settings/create/', views_setting.create_setting, name='create_setting'),
+    path('settings/update/<str:email>/', views_setting.update_setting, name='update_setting'),
+    path('settings/delete/<str:email>/', views_setting.delete_setting, name='delete_setting'),
 
     # Friends
     path('friends/', get_friends, name='get_friends'),

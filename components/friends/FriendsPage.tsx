@@ -100,7 +100,7 @@ export default function FriendsPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search for Friends (by email)"
+              placeholder="Search for Friends"
               className="w-full px-4 py-2 bg-muted text-black border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black text-sm"
             />
           </div>
