@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,30 +12,21 @@ import {
   CartesianGrid
 } from 'recharts';
 
+import { DayGraphPoint, WeekGraphPoint } from './DashboardMain'; // adjust path if needed
 
 interface ChartsSectionProps {
-  data: { [key: string]: any }[];
+  dayData: DayGraphPoint[];
+  weekData: WeekGraphPoint[];
 }
 
-
-export default function ChartsSection({ data }: ChartsSectionProps) {
-  // Transform Firestore data if needed
-  const barData = data.map(item => ({
-    day: item.day || 'N/A',
-    hours: item.hours || 0,
-  }));
-
-  const lineData = data.map(item => ({
-    week: item.week || 'N/A',
-    progress: item.progress || 0,
-  }));
-
+export default function ChartsSection({ dayData, weekData }: ChartsSectionProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Bar Chart: Daily Study Time */}
       <div className="bg-pink-50 p-4 rounded shadow">
         <h4 className="text-sm mb-2">Study Time (Daily)</h4>
         <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={barData}>
+          <BarChart data={dayData}>
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
@@ -41,15 +34,17 @@ export default function ChartsSection({ data }: ChartsSectionProps) {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Line Chart: Weekly Progress */}
       <div className="bg-pink-50 p-4 rounded shadow">
         <h4 className="text-sm mb-2">Weekly Progress</h4>
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart data={lineData}>
+          <LineChart data={weekData}>
             <XAxis dataKey="week" />
             <YAxis />
             <Tooltip />
             <CartesianGrid strokeDasharray="3 3" />
-            <Line type="monotone" dataKey="progress" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="totalHours" stroke="#82ca9d" />
           </LineChart>
         </ResponsiveContainer>
       </div>
