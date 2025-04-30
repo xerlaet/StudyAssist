@@ -7,6 +7,7 @@ import {
   Download,
   Plus,
   MoreHorizontal,
+  Trash2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,7 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { deleteObject } from "firebase/storage";
 import { auth } from "@/lib/firebase"; // Assuming auth is already set up
 import { useState, useEffect } from "react";
 
@@ -25,21 +27,18 @@ const storage = getStorage();
 const db = getFirestore();
 
 export default function ResourcePage() {
-  const [files, setFiles] = useState([]); // Start with an empty array
+  const [files, setFiles] = useState([]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !auth.currentUser) return;
 
     try {
-      // Upload file to Firebase Storage
       const storageRef = ref(storage, `uploads/${auth.currentUser.uid}/${file.name}`);
       await uploadBytes(storageRef, file);
 
-      // Get the download URL
       const downloadURL = await getDownloadURL(storageRef);
 
-      // Save file metadata to Firestore
       const fileDoc = {
         name: file.name,
         url: downloadURL,
@@ -47,12 +46,30 @@ export default function ResourcePage() {
         type: file.type,
         uploadedAt: new Date(),
       };
-      await addDoc(collection(db, "users", auth.currentUser.uid, "resourceHub"), fileDoc);
+      const docRef = await addDoc(collection(db, "users", auth.currentUser.uid, "resourceHub"), fileDoc);
 
-      // Update local state
-      setFiles((prevFiles) => [...prevFiles, fileDoc]);
+      setFiles((prevFiles) => [...prevFiles, { id: docRef.id, ...fileDoc }]);
     } catch (error) {
       console.error("Error uploading file:", error);
+    }
+  };
+
+  const handleDeleteFile = async (fileId: string, fileName: string) => {
+    if (!auth.currentUser) return;
+
+    try {
+      // Delete the file from Firebase Storage
+      const storageRef = ref(storage, `uploads/${auth.currentUser.uid}/${fileName}`);
+      await deleteObject(storageRef);
+
+      // Delete the file metadata from Firestore
+      const fileDocRef = doc(db, "users", auth.currentUser.uid, "resourceHub", fileId);
+      await deleteDoc(fileDocRef);
+
+      // Update local state
+      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
+    } catch (error) {
+      console.error("Error deleting file:", error);
     }
   };
 
@@ -60,13 +77,23 @@ export default function ResourcePage() {
     const fetchFiles = async () => {
       if (!auth.currentUser) return;
 
-      const snapshot = await getDocs(collection(db, "users", auth.currentUser.uid, "resourceHub"));
-      const fetchedFiles = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setFiles(fetchedFiles);
+      try {
+        const snapshot = await getDocs(collection(db, "users", auth.currentUser.uid, "resourceHub"));
+        const fetchedFiles = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        console.log("Fetched files:", fetchedFiles); // Debugging line
+        const validFiles = fetchedFiles.filter((file) => file.name && file.url && file.size);
+        setFiles(validFiles);
+      } catch (error) {
+        console.error("Error fetching files:", error);
+      }
     };
 
     fetchFiles();
   }, []);
+
+  useEffect(() => {
+    console.log("Files state:", files);
+  }, [files]);
 
   return (
     <div className="flex flex-col space-y-8">
@@ -115,6 +142,12 @@ export default function ResourcePage() {
                   >
                     <Download className="h-3 w-3" /> Download
                   </a>
+                  <button
+                    onClick={() => handleDeleteFile(file.id, file.name)}
+                    className="text-red-600 hover:text-red-800 text-xs flex items-center gap-1 font-medium"
+                  >
+                    <Trash2 className="h-4 w-4" /> Delete
+                  </button>
                 </div>
               </div>
             </div>
